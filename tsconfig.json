@@ -1,0 +1,28 @@
+{
+	"compilerOptions": {
+		"target": "es2015",
+		"module": "commonjs",
+		"inlineSourceMap": true,
+		"outDir": "bin",
+		"rootDirs": [
+			"source"
+		],
+		//"watch": true,
+		//"strictNullChecks": true,
+		"forceConsistentCasingInFileNames": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		//,
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true
+		//"isolatedModules": true
+	},
+	"exclude": [
+		"node_modules"
+	],
+	"include": [
+		"source/**/*.ts",
+		"tests/**/*.ts"
+	]
+}

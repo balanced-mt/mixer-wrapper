@@ -1,0 +1,48 @@
+import { GameClient, IParticipant } from "../beam-interactive-node2";
+import { Event } from "./common/utils/Event";
+import { InteractiveScene } from "./InteractiveScene";
+import { InteractiveUser } from "./InteractiveUser";
+import { InteractiveGroup } from "./InteractiveGroup";
+export declare class InteractiveWrapper {
+    readonly client: GameClient | undefined;
+    readonly defaultScene: InteractiveScene;
+    readonly defaultGroup: InteractiveGroup;
+    private sceneMap;
+    private groupMap;
+    private sessionMap;
+    private userMap;
+    private userIDMap;
+    onInit: Event<() => void>;
+    onReady: Event<() => void>;
+    onUserJoin: Event<(user: InteractiveUser) => void>;
+    onUserLeave: Event<(user: InteractiveUser) => void>;
+    authToken: string;
+    versionId: number;
+    constructor(authToken: string, versionId: number);
+    private tempScenes;
+    private tempScenesCount;
+    addScene(scene: InteractiveScene): Promise<void>;
+    removeScene(scene: InteractiveScene): Promise<void>;
+    getScene(name: string): InteractiveScene;
+    private tempGroups;
+    private tempGroupsCount;
+    addGroup(group: InteractiveGroup): Promise<void>;
+    removeGroup(group: InteractiveGroup): Promise<void>;
+    moveGroup(group: InteractiveGroup, scene: InteractiveScene): Promise<void>;
+    getGroup(name: string): InteractiveGroup;
+    moveUsers(users: InteractiveUser[], group: InteractiveGroup, currentTry?: number): Promise<void>;
+    findUser(username: string): InteractiveUser;
+    getUser(participant: IParticipant): InteractiveUser;
+    private clockDelta;
+    readonly now: number;
+    /**********************************************************************/
+    private scenesInitialized;
+    private groupsInitialized;
+    beamInit(): Promise<void>;
+    start(): Promise<void>;
+    stop(): void;
+    update(): void;
+    private createScene(id);
+    private createGroup(id, sceneID);
+    private updateGroup(group, sceneID);
+}
