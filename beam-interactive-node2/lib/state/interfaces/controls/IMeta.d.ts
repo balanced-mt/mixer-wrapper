@@ -1,12 +1,12 @@
-import { IJSON } from '../../../interfaces';
+import { IJSON, JSONPrimitive } from '../../../interfaces';
 import { ETag } from './';
 /**
  * An IMeta property is one property within an IMeta map.
  * It contains a value and an Etag.
  */
 export interface IMetaProperty {
-    value: IJSON;
-    etag: ETag;
+    value: IJSON | JSONPrimitive;
+    etag?: ETag;
 }
 /**
  * Meta is a map of custom property names. Each custom property has a value

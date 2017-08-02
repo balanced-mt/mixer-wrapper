@@ -68,7 +68,7 @@ export interface IInteractiveError {
      */
     path?: string;
 }
-export declare module InteractiveError {
+export declare namespace InteractiveError {
     class Base extends BaseError {
         code: number;
         path: string | null;

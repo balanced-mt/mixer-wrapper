@@ -68,7 +68,9 @@ var Button = (function (_super) {
         // Clone to prevent mutations
         var changedData = __assign({}, controlUpdate);
         if (changedData.cooldown) {
-            changedData.cooldown = this.client.state.synchronizeLocalTime().getTime() + changedData.cooldown;
+            changedData.cooldown =
+                this.client.state.synchronizeLocalTime().getTime() +
+                    changedData.cooldown;
         }
         return _super.prototype.update.call(this, changedData);
     };

@@ -4,12 +4,12 @@
  */
 export interface IReconnectionPolicy {
     /**
-     * next provides the next reconnect delay, in ms.
-     */
+   * next provides the next reconnect delay, in ms.
+   */
     next(): number;
     /**
-     * Resets an internal counter of reconnection attempts, should be called on a successful connection.
-     */
+   * Resets an internal counter of reconnection attempts, should be called on a successful connection.
+   */
     reset(): void;
 }
 /**
@@ -21,9 +21,9 @@ export declare class ExponentialReconnectionPolicy implements IReconnectionPolic
     baseDelay: number;
     private retries;
     /**
-     * @param {Number} maxDelay maximum duration to wait between reconnection attempts
-     * @param {Number} baseDelay delay, in milliseconds, to use in
-     */
+   * @param {Number} maxDelay maximum duration to wait between reconnection attempts
+   * @param {Number} baseDelay delay, in milliseconds, to use in
+   */
     constructor(maxDelay?: number, baseDelay?: number);
     next(): number;
     reset(): void;

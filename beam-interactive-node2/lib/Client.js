@@ -101,8 +101,7 @@ var Client = (function (_super) {
         this.state.reset();
         this.createSocket(options);
         this.socket.connect();
-        return util_1.resolveOn(this, 'open')
-            .then(function () { return _this; });
+        return util_1.resolveOn(this, 'open').then(function () { return _this; });
     };
     /**
      * Closes and frees the resources associated with the interactive connection.
@@ -120,10 +119,14 @@ var Client = (function (_super) {
      */
     Client.prototype.setCompression = function (preferences) {
         var _this = this;
-        return this.socket.execute('setCompression', {
+        return this.socket
+            .execute('setCompression', {
             params: preferences,
-        }).then(function (res) {
-            _this.socket.setOptions({ compressionScheme: res.scheme });
+        })
+            .then(function (res) {
+            _this.socket.setOptions({
+                compressionScheme: res.scheme,
+            });
         });
     };
     /**
@@ -143,8 +146,7 @@ var Client = (function (_super) {
      */
     Client.prototype.synchronizeScenes = function () {
         var _this = this;
-        return this.getScenes()
-            .then(function (res) { return _this.state.synchronizeScenes(res); });
+        return this.getScenes().then(function (res) { return _this.state.synchronizeScenes(res); });
     };
     /**
      * Retrieves the groups stored on the interactive server.
@@ -157,8 +159,7 @@ var Client = (function (_super) {
      */
     Client.prototype.synchronizeGroups = function () {
         var _this = this;
-        return this.getGroups()
-            .then(function (res) { return _this.state.synchronizeGroups(res); });
+        return this.getGroups().then(function (res) { return _this.state.synchronizeGroups(res); });
     };
     /**
      * Retrieves and hydrates client side stores with state from the server
@@ -173,8 +174,7 @@ var Client = (function (_super) {
      * Gets the time from the server as a unix timestamp in UTC.
      */
     Client.prototype.getTime = function () {
-        return this.execute('getTime', null, false)
-            .then(function (res) {
+        return this.execute('getTime', null, false).then(function (res) {
             return res.time;
         });
     };

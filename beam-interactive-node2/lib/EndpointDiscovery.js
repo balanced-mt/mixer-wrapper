@@ -13,8 +13,7 @@ var EndpointDiscovery = (function () {
      */
     EndpointDiscovery.prototype.retrieveEndpoints = function (endpoint) {
         if (endpoint === void 0) { endpoint = 'https://mixer.com/api/v1/interactive/hosts'; }
-        return this.requester.request(endpoint)
-            .then(function (res) {
+        return this.requester.request(endpoint).then(function (res) {
             if (res.length > 0) {
                 return res;
             }

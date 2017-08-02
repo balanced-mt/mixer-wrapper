@@ -31,7 +31,10 @@ var GameClient = (function (_super) {
             return _super.prototype.open.call(_this, {
                 authToken: options.authToken,
                 url: endpoints[0].address,
-                extraHeaders: {
+                extraHeaders: (options.sharecode !== undefined) ? {
+                    'X-Interactive-Version': options.versionId,
+                    'X-Interactive-Sharecode': options.sharecode,
+                } : {
                     'X-Interactive-Version': options.versionId,
                 },
             });
@@ -44,8 +47,7 @@ var GameClient = (function (_super) {
      */
     GameClient.prototype.createControls = function (data) {
         var _this = this;
-        return this.execute('createControls', data, false)
-            .then(function (res) {
+        return this.execute('createControls', data, false).then(function (res) {
             var scene = _this.state.getScene(res.sceneID);
             if (!scene) {
                 return _this.state.onSceneCreate(res).getControls();
@@ -63,8 +65,7 @@ var GameClient = (function (_super) {
      * Instructs the server to create a new scene with the specified parameters.
      */
     GameClient.prototype.createScene = function (scene) {
-        return this.createScenes({ scenes: [scene] })
-            .then(function (scenes) {
+        return this.createScenes({ scenes: [scene] }).then(function (scenes) {
             return scenes.scenes[0];
         });
     };

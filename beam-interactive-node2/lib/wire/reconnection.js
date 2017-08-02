@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var ExponentialReconnectionPolicy = (function () {
     /**
-     * @param {Number} maxDelay maximum duration to wait between reconnection attempts
-     * @param {Number} baseDelay delay, in milliseconds, to use in
-     */
+   * @param {Number} maxDelay maximum duration to wait between reconnection attempts
+   * @param {Number} baseDelay delay, in milliseconds, to use in
+   */
     function ExponentialReconnectionPolicy(maxDelay, baseDelay) {
         if (maxDelay === void 0) { maxDelay = 20 * 1000; }
         if (baseDelay === void 0) { baseDelay = 500; }
@@ -18,7 +18,7 @@ var ExponentialReconnectionPolicy = (function () {
     }
     ExponentialReconnectionPolicy.prototype.next = function () {
         // tslint:disable-next-line:no-bitwise
-        return Math.min(this.maxDelay, (1 << (this.retries++)) * this.baseDelay);
+        return Math.min(this.maxDelay, (1 << this.retries++) * this.baseDelay);
     };
     ExponentialReconnectionPolicy.prototype.reset = function () {
         this.retries = 0;

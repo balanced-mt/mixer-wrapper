@@ -66,8 +66,7 @@ var ClockSync = (function (_super) {
         var _this = this;
         this.state = ClockSyncerState.Started;
         this.deltas = [];
-        this.sync()
-            .then(function () {
+        this.sync().then(function () {
             _this.expectedTime = Date.now() + _this.options.checkInterval;
             _this.checkTimer = setInterval(function () { return _this.checkClock(); }, _this.options.checkInterval);
         });
@@ -87,8 +86,7 @@ var ClockSync = (function (_super) {
         for (var i = 0; i < this.options.sampleSize; i++) {
             samplePromises.push(util_1.delay(i * this.options.sampleDelay).then(function () { return _this.sample(); }));
         }
-        this.syncing = Promise.all(samplePromises)
-            .then(function () {
+        this.syncing = Promise.all(samplePromises).then(function () {
             if (_this.state !== ClockSyncerState.Synchronizing) {
                 return;
             }
@@ -96,8 +94,7 @@ var ClockSync = (function (_super) {
             _this.emit('delta', _this.getDelta());
             return undefined;
         });
-        return this.syncing
-            .then(function () { return _this.syncing = null; });
+        return this.syncing.then(function () { return (_this.syncing = null); });
     };
     ClockSync.prototype.sample = function () {
         var _this = this;
@@ -105,7 +102,8 @@ var ClockSync = (function (_super) {
             return Promise.resolve(null);
         }
         var transmitTime = Date.now();
-        return this.options.sampleFunc()
+        return this.options
+            .sampleFunc()
             .then(function (serverTime) { return _this.processResponse(transmitTime, serverTime); })
             .catch(function (err) {
             if (_this.state !== ClockSyncerState.Stopped) {
@@ -150,7 +148,7 @@ var ClockSync = (function (_super) {
     ClockSync.prototype.processResponse = function (transmitTime, serverTime) {
         var receiveTime = Date.now();
         var rtt = receiveTime - transmitTime;
-        var delta = serverTime - (rtt / 2) - transmitTime;
+        var delta = serverTime - rtt / 2 - transmitTime;
         return this.addDelta(delta);
     };
     ClockSync.prototype.addDelta = function (delta) {

@@ -86,7 +86,10 @@ var InteractiveSocket = (function (_super) {
             // If this close event's code is not within our recoverable code array
             // We raise it as an error and refuse to connect.
             if (exports.recoverableCloseCodes.indexOf(evt.code) === -1) {
-                var err = errors_1.InteractiveError.fromSocketMessage({ code: evt.code, message: evt.reason });
+                var err = errors_1.InteractiveError.fromSocketMessage({
+                    code: evt.code,
+                    message: evt.reason,
+                });
                 _this.state = SocketState.Closing;
                 _this.emit('error', err);
                 // Refuse to continue, these errors usually mean something is very wrong with our connection.
@@ -97,7 +100,8 @@ var InteractiveSocket = (function (_super) {
                 _this.connect();
                 return;
             }
-            if (_this.state === SocketState.Closing || !false) {
+            if (_this.state === SocketState.Closing ||
+                !_this.options.autoReconnect) {
                 _this.state = SocketState.Idle;
                 return;
             }
@@ -141,17 +145,23 @@ var InteractiveSocket = (function (_super) {
         // https://nodejs.org/api/url.html#url_url_format_urlobject
         url.search = null;
         if (this.options.authToken) {
-            extras.headers['Authorization'] = "Bearer " + this.options.authToken;
+            extras.headers['Authorization'] = "Bearer " + this.options
+                .authToken;
         }
         if (this.options.jwt) {
-            this.options.queryParams['Authorization'] = "JWT " + this.options.jwt;
+            this.options.queryParams['Authorization'] = "JWT " + this.options
+                .jwt;
         }
         url.query = Object.assign({}, url.query, this.options.queryParams);
         this.socket = new InteractiveSocket.WebSocket(Url.format(url), [], extras);
         this.state = SocketState.Connecting;
-        this.socket.addEventListener('close', function (evt) { return _this.emit('close', evt); });
+        this.socket.addEventListener('close', function (evt) {
+            return _this.emit('close', evt);
+        });
         this.socket.addEventListener('open', function () { return _this.emit('open'); });
-        this.socket.addEventListener('message', function (evt) { return _this.emit('message', evt.data); });
+        this.socket.addEventListener('message', function (evt) {
+            return _this.emit('message', evt.data);
+        });
         this.socket.addEventListener('error', function (err) {
             if (_this.state === SocketState.Closing) {
                 // Ignore errors on a closing socket.
@@ -237,7 +247,7 @@ var InteractiveSocket = (function (_super) {
                     packet.removeListener('send', onSend);
                     packet.removeListener('cancel', onCancel);
                     _this.removeListener('close', onClose);
-                    reject(new errors_1.TimeoutError("Expected to get event send " + JSON.stringify(packet)));
+                    reject(new TimeoutError("Expected to get event send " + JSON.stringify(packet)));
                 }, 120 * 1000);
             });
         }
@@ -286,7 +296,7 @@ var InteractiveSocket = (function (_super) {
                 _this.removeListener("reply:" + packet.id(), onReply);
                 packet.removeListener('cancel', onCancel);
                 _this.removeListener('close', onClose);
-                reject(new errors_1.TimeoutError("Expected to get event reply:" + packet.id()));
+                reject(new TimeoutError("Expected to get event reply:" + packet.id()));
             }, timeout);
         });
         packet.emit('send', promise);
@@ -335,6 +345,8 @@ var InteractiveSocket = (function (_super) {
 // WebSocket constructor, may be overridden if the environment
 // does not natively support it.
 //tslint:disable-next-line:variable-name
-InteractiveSocket.WebSocket = typeof WebSocket === 'undefined' ? null : WebSocket;
+InteractiveSocket.WebSocket = typeof WebSocket === 'undefined'
+    ? null
+    : WebSocket;
 exports.InteractiveSocket = InteractiveSocket;
 //# sourceMappingURL=Socket.js.map

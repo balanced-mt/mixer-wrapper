@@ -32,7 +32,7 @@ var PacketState;
      */
     PacketState[PacketState["Cancelled"] = 4] = "Cancelled";
 })(PacketState = exports.PacketState || (exports.PacketState = {}));
-var maxInt32 = 0xFFFFFFFF;
+var maxInt32 = 0xffffffff;
 /**
  * A Packet is a wrapped Method that can be timed-out or canceled whilst it travels over the wire.
  */
@@ -173,7 +173,9 @@ var Reply = (function () {
      * Constructs a reply packet from raw values coming in from a socket.
      */
     Reply.fromSocket = function (message) {
-        var err = message.error ? errors_1.InteractiveError.fromSocketMessage(message.error) : null;
+        var err = message.error
+            ? errors_1.InteractiveError.fromSocketMessage(message.error)
+            : null;
         return new Reply(message.id, message.result, err);
     };
     /**

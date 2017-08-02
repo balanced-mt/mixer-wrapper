@@ -8,6 +8,11 @@ export interface IGameClientOptions {
      */
     versionId: number;
     /**
+     * Optional project sharecode to your Interactive Project Version. You can retrieve one
+     * from the Interactive Studio on Mixer.com in the Code step.
+     */
+    sharecode?: string;
+    /**
      * An OAuth Bearer token as defined in {@link https://art.tools.ietf.org/html/rfc6750| OAuth 2.0 Bearer Token Usage}.
      */
     authToken: string;

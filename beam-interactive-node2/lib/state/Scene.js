@@ -105,8 +105,7 @@ var Scene = (function (_super) {
      * Creates a control in this scene, sending it to the server.
      */
     Scene.prototype.createControl = function (control) {
-        return this.createControls([control])
-            .then(function (res) { return res[0]; });
+        return this.createControls([control]).then(function (res) { return res[0]; });
     };
     /**
      * Creates a collection of controls in this scene, sending it to the server.
@@ -124,7 +123,10 @@ var Scene = (function (_super) {
      * Deletes controls in this scene from the server.
      */
     Scene.prototype.deleteControls = function (controlIDs) {
-        return this.client.deleteControls({ sceneID: this.sceneID, controlIDs: controlIDs });
+        return this.client.deleteControls({
+            sceneID: this.sceneID,
+            controlIDs: controlIDs,
+        });
     };
     /**
      * Deletes a single control in this scene from the server.

@@ -16,6 +16,7 @@ var BaseError = (function (_super) {
         var _this = _super.call(this) || this;
         _this.message = message;
         if (Error.captureStackTrace) {
+            // chrome etc.
             Error.captureStackTrace(_this, _this.constructor);
             return _this;
         }
