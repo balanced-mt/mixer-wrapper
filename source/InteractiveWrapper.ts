@@ -58,10 +58,12 @@ export class InteractiveWrapper {
 
 	authToken: string;
 	versionId: number;
+	sharecode: string | undefined;
 
-	constructor(authToken: string, versionId: number) {
+	constructor(authToken: string, versionId: number, sharecode?: string) {
 		this.authToken = authToken;
 		this.versionId = versionId;
+		this.sharecode = sharecode;
 		this.addScene(this.defaultScene);
 		this.addGroup(this.defaultGroup);
 
@@ -302,10 +304,18 @@ export class InteractiveWrapper {
 			}
 		});
 
-		await this.client.open({
-			authToken: this.authToken,
-			versionId: this.versionId
-		});
+		if (this.sharecode !== undefined) {
+			await this.client.open({
+				authToken: this.authToken,
+				versionId: this.versionId,
+				sharecode: this.sharecode
+			});
+		} else {
+			await this.client.open({
+				authToken: this.authToken,
+				versionId: this.versionId
+			});
+		}
 
 		await this.client.synchronizeScenes();
 		await this.client.synchronizeGroups();
