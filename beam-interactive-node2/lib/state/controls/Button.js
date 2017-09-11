@@ -9,14 +9,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 var Control_1 = require("./Control");
 /**
@@ -32,6 +24,12 @@ var Button = (function (_super) {
      */
     Button.prototype.setText = function (text) {
         return this.updateAttribute('text', text);
+    };
+    /**
+     * Sets a new tooltip value for this button.
+     */
+    Button.prototype.setTooltip = function (tooltip) {
+        return this.updateAttribute('tooltip', tooltip);
     };
     /**
      * Sets a progress value for this button.
@@ -66,7 +64,8 @@ var Button = (function (_super) {
      */
     Button.prototype.update = function (controlUpdate) {
         // Clone to prevent mutations
-        var changedData = __assign({}, controlUpdate);
+        // XXX: Typescript 2.4 is strict, let the compiler be clever.
+        var changedData = Object.assign({}, controlUpdate);
         if (changedData.cooldown) {
             changedData.cooldown =
                 this.client.state.synchronizeLocalTime().getTime() +

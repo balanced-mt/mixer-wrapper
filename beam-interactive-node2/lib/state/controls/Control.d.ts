@@ -15,6 +15,7 @@ export declare abstract class Control<T extends IControlData> extends EventEmitt
     kind: ControlKind;
     disabled: boolean;
     position: IGridPlacement[];
+    /** @deprecated etags are no longer used, you can always omit/ignore this */
     etag: string;
     meta: IMeta;
     protected scene: Scene;
@@ -28,9 +29,9 @@ export declare abstract class Control<T extends IControlData> extends EventEmitt
      */
     setClient(client: IClient): void;
     constructor(control: T);
-    abstract giveInput<T extends IInput>(input: T): Promise<void>;
+    abstract giveInput(input: IInput): Promise<void>;
     /**
-     * Called by client when it recieves an input event for this control from the server.
+     * Called by client when it receives an input event for this control from the server.
      */
     receiveInput<T extends IInput>(inputEvent: IInputEvent<T>, participant: IParticipant): void;
     protected sendInput<K extends IInput>(input: K): Promise<void>;

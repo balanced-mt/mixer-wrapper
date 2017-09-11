@@ -1,6 +1,6 @@
 import { IParticipant } from '../';
 import { IControl, IControlData, IControlUpdate } from './IControl';
-import { IButtonInput, IInputEvent } from './IInput';
+import { IButtonKeyboardInput, IButtonMouseInput, IInputEvent } from './IInput';
 
 /**
  * Extends the regular control data with additional properties for Buttons
@@ -10,6 +10,10 @@ export interface IButtonData extends IControlData {
      * The text displayed on the button.
      */
     text?: string;
+    /**
+     * The tooltip text displayed when the participant hovers over the button.
+     */
+    tooltip?: string;
     /**
      * The spark cost of this button.
      */
@@ -37,6 +41,10 @@ export interface IButtonUpdate extends IControlUpdate {
      * Will update the text of this button.
      */
     text?: string;
+    /**
+     * Will update the tooltip of this button.
+     */
+    tooltip?: string;
     /**
      * In milliseconds, will be converted to a unix timestamp of when this cooldown expires.
      */
@@ -69,22 +77,42 @@ export interface IButton extends IControl, IButtonData {
     update(changedData: IButtonUpdate): Promise<void>;
 
     /**
-     * Fired when a participant presses this button.
+     * Fired when a participant presses this button with their mouse.
      */
     on(
         event: 'mousedown',
         listener: (
-            inputEvent: IInputEvent<IButtonInput>,
+            inputEvent: IInputEvent<IButtonMouseInput>,
             participant: IParticipant,
         ) => void,
     ): this;
     /**
-     * Fired when a participant releases this button.
+     * Fired when a participant releases this button with their mouse.
      */
     on(
         event: 'mouseup',
         listener: (
-            inputEvent: IInputEvent<IButtonInput>,
+            inputEvent: IInputEvent<IButtonMouseInput>,
+            participant: IParticipant,
+        ) => void,
+    ): this;
+    /**
+     * Fired when a participant presses the key associated with this button.
+     */
+    on(
+        event: 'keydown',
+        listener: (
+            inputEvent: IInputEvent<IButtonKeyboardInput>,
+            participant: IParticipant,
+        ) => void,
+    ): this;
+    /**
+     * Fired when a participant releases the key associated with this button.
+     */
+    on(
+        event: 'keyup',
+        listener: (
+            inputEvent: IInputEvent<IButtonKeyboardInput>,
             participant: IParticipant,
         ) => void,
     ): this;

@@ -227,9 +227,6 @@ var State = (function (_super) {
     State.prototype.onSceneCreate = function (data) {
         var scene = this.scenes.get(data.sceneID);
         if (scene) {
-            if (scene.etag === data.etag) {
-                return this.scenes.get(data.sceneID);
-            }
             this.onSceneUpdate(data);
             return scene;
         }
@@ -274,9 +271,6 @@ var State = (function (_super) {
     State.prototype.onGroupCreate = function (data) {
         var group = this.groups.get(data.groupID);
         if (group) {
-            if (group.etag === data.etag) {
-                return this.groups.get(data.groupID);
-            }
             this.onGroupUpdate(data);
             return group;
         }

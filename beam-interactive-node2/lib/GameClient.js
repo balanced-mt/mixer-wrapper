@@ -25,18 +25,19 @@ var GameClient = (function (_super) {
      */
     GameClient.prototype.open = function (options) {
         var _this = this;
+        var extraHeaders = {
+            'X-Interactive-Version': options.versionId,
+        };
+        if (options.sharecode) {
+            extraHeaders['X-Interactive-Sharecode'] = options.sharecode;
+        }
         return this.discovery
             .retrieveEndpoints(options.discoveryUrl)
             .then(function (endpoints) {
             return _super.prototype.open.call(_this, {
                 authToken: options.authToken,
                 url: endpoints[0].address,
-                extraHeaders: (options.sharecode !== undefined) ? {
-                    'X-Interactive-Version': options.versionId,
-                    'X-Interactive-Sharecode': options.sharecode,
-                } : {
-                    'X-Interactive-Version': options.versionId,
-                },
+                extraHeaders: extraHeaders,
             });
         });
     };

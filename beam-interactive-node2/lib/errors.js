@@ -240,20 +240,6 @@ var InteractiveError;
     InteractiveError.InvalidMethodArguments = InvalidMethodArguments;
     InteractiveError.errors[4004] = InvalidMethodArguments;
     /**
-     * Indicates that an invalid Etag was sent to the server when the client wished to update some state.
-     */
-    var EtagMismatch = (function (_super) {
-        __extends(EtagMismatch, _super);
-        function EtagMismatch(message) {
-            var _this = _super.call(this, message, 4005) || this;
-            EtagMismatch.setProto(_this);
-            return _this;
-        }
-        return EtagMismatch;
-    }(Base));
-    InteractiveError.EtagMismatch = EtagMismatch;
-    InteractiveError.errors[4005] = EtagMismatch;
-    /**
      * Indicates that an invalid transactionId was specified in a `capture` method.
      */
     var InvalidTransactionId = (function (_super) {

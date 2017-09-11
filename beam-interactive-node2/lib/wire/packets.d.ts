@@ -56,6 +56,10 @@ export declare class Packet extends EventEmitter {
      * @return {PacketState}
      */
     getState(): PacketState;
+    /**
+     * Sets the sequence number on the outgoing packet.
+     */
+    setSequenceNumber(x: number): this;
     setState(state: PacketState): void;
 }
 /**
@@ -84,6 +88,7 @@ export declare class Method<T> {
      */
     id: number;
     readonly type: string;
+    seq: number;
     constructor(
         /**
          * The name of this method

@@ -9,6 +9,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var Client_1 = require("./Client");
 var ParticipantClient = (function (_super) {
@@ -18,11 +26,9 @@ var ParticipantClient = (function (_super) {
     }
     ParticipantClient.prototype.open = function (options) {
         return _super.prototype.open.call(this, {
-            jwt: options.jwt,
             url: options.url,
-            queryParams: Object.assign({
-                'x-protocol-version': '2.0',
-            }, options.extraParams),
+            reconnectChecker: options.reconnectChecker,
+            queryParams: __assign({ 'x-protocol-version': '2.0', key: options.key }, options.extraParams),
         });
     };
     /**

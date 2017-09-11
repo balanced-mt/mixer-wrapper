@@ -44,7 +44,7 @@ var Control = (function (_super) {
         this.client = client;
     };
     /**
-     * Called by client when it recieves an input event for this control from the server.
+     * Called by client when it receives an input event for this control from the server.
      */
     Control.prototype.receiveInput = function (inputEvent, participant) {
         this.emit(inputEvent.input.event, inputEvent, participant);
@@ -69,7 +69,6 @@ var Control = (function (_super) {
     };
     Control.prototype.updateAttribute = function (attribute, value) {
         var packet = {};
-        packet.etag = this.etag;
         packet.controlID = this.controlID;
         packet[attribute] = value;
         return this.client.updateControls({
@@ -88,7 +87,7 @@ var Control = (function (_super) {
      * Update this control on the server.
      */
     Control.prototype.update = function (controlUpdate) {
-        var changedData = __assign({}, controlUpdate, { controlID: this.controlID, etag: this.etag });
+        var changedData = __assign({}, controlUpdate, { controlID: this.controlID });
         return this.client.updateControls({
             sceneID: this.scene.sceneID,
             controls: [changedData],

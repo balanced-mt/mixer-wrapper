@@ -8,6 +8,7 @@ import { IGroup, IGroupData } from './interfaces/IGroup';
 export declare class Group extends EventEmitter implements IGroup {
     groupID: string;
     sceneID: string;
+    /** @deprecated etags are no longer used, you can always omit/ignore this */
     etag: string;
     meta: IMeta;
     constructor(group: IGroupData);

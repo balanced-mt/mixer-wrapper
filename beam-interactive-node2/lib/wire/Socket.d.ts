@@ -16,12 +16,12 @@ export interface ISocketOptions {
     autoReconnect?: boolean;
     url?: string;
     compressionScheme?: CompressionScheme;
-    jwt?: string;
     queryParams?: IRawValues;
     authToken?: string;
     replyTimeout?: number;
     pingInterval?: number;
     extraHeaders?: IRawValues;
+    reconnectChecker?: () => Promise<void>;
 }
 export interface IWebSocketOptions {
     headers: IRawValues;
@@ -67,6 +67,7 @@ export declare class InteractiveSocket extends EventEmitter {
     private state;
     private socket;
     private queue;
+    private lastSequenceNumber;
     constructor(options?: ISocketOptions);
     /**
      * Set the given options.

@@ -117,12 +117,6 @@ export declare namespace InteractiveError {
         constructor(message: string);
     }
     /**
-     * Indicates that an invalid Etag was sent to the server when the client wished to update some state.
-     */
-    class EtagMismatch extends Base {
-        constructor(message: string);
-    }
-    /**
      * Indicates that an invalid transactionId was specified in a `capture` method.
      */
     class InvalidTransactionId extends Base {

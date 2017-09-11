@@ -27,7 +27,6 @@ var Scene = (function (_super) {
         _this.meta = {};
         _this.stateFactory = new StateFactory_1.StateFactory();
         _this.sceneID = data.sceneID;
-        _this.etag = data.etag || '';
         _this.meta = data.meta || {};
         return _this;
     }
@@ -48,9 +47,6 @@ var Scene = (function (_super) {
     Scene.prototype.onControlCreated = function (controlData) {
         var control = this.controls.get(controlData.controlID);
         if (control) {
-            if (control.etag === controlData.etag) {
-                return control;
-            }
             this.onControlUpdated(controlData);
             return control;
         }

@@ -59,6 +59,7 @@ function getDefaults() {
         pingInterval: 10 * 1000,
         extraHeaders: {},
         queryParams: {},
+        reconnectChecker: function () { return Promise.resolve(); },
     };
 }
 var InteractiveSocket = (function (_super) {
@@ -68,6 +69,7 @@ var InteractiveSocket = (function (_super) {
         var _this = _super.call(this) || this;
         _this.state = SocketState.Idle;
         _this.queue = new Set();
+        _this.lastSequenceNumber = 0;
         _this.setMaxListeners(Infinity);
         _this.setOptions(options);
         if (InteractiveSocket.WebSocket === undefined) {
@@ -97,7 +99,7 @@ var InteractiveSocket = (function (_super) {
             }
             if (_this.state === SocketState.Refreshing) {
                 _this.state = SocketState.Idle;
-                _this.connect();
+                _this.options.reconnectChecker().then(function () { return _this.connect(); });
                 return;
             }
             if (_this.state === SocketState.Closing ||
@@ -107,7 +109,7 @@ var InteractiveSocket = (function (_super) {
             }
             _this.state = SocketState.Reconnecting;
             _this.reconnectTimeout = setTimeout(function () {
-                _this.connect();
+                _this.options.reconnectChecker().then(function () { return _this.connect(); });
             }, _this.options.reconnectionPolicy.next());
         });
         return _this;
@@ -118,10 +120,6 @@ var InteractiveSocket = (function (_super) {
      */
     InteractiveSocket.prototype.setOptions = function (options) {
         this.options = Object.assign({}, this.options || getDefaults(), options);
-        //TODO: Clear up auth here later
-        if (this.options.jwt && this.options.authToken) {
-            throw new Error('Cannot connect to Constellation with both JWT and OAuth token.');
-        }
     };
     /**
      * Open a new socket connection. By default, the socket will auto
@@ -147,10 +145,6 @@ var InteractiveSocket = (function (_super) {
         if (this.options.authToken) {
             extras.headers['Authorization'] = "Bearer " + this.options
                 .authToken;
-        }
-        if (this.options.jwt) {
-            this.options.queryParams['Authorization'] = "JWT " + this.options
-                .jwt;
         }
         url.query = Object.assign({}, url.query, this.options.queryParams);
         this.socket = new InteractiveSocket.WebSocket(Url.format(url), [], extras);
@@ -247,7 +241,7 @@ var InteractiveSocket = (function (_super) {
                     packet.removeListener('send', onSend);
                     packet.removeListener('cancel', onCancel);
                     _this.removeListener('close', onClose);
-                    reject(new TimeoutError("Expected to get event send " + JSON.stringify(packet)));
+                    reject(new errors_1.TimeoutError("Expected to get event send " + JSON.stringify(packet)));
                 }, 120 * 1000);
             });
         }
@@ -296,7 +290,7 @@ var InteractiveSocket = (function (_super) {
                 _this.removeListener("reply:" + packet.id(), onReply);
                 packet.removeListener('cancel', onCancel);
                 _this.removeListener('close', onClose);
-                reject(new TimeoutError("Expected to get event reply:" + packet.id()));
+                reject(new errors_1.TimeoutError("Expected to get event reply:" + packet.id()));
             }, timeout);
         });
         packet.emit('send', promise);
@@ -308,7 +302,7 @@ var InteractiveSocket = (function (_super) {
         this.sendRaw(reply);
     };
     InteractiveSocket.prototype.sendPacketInner = function (packet) {
-        this.sendRaw(packet);
+        this.sendRaw(packet.setSequenceNumber(this.lastSequenceNumber));
     };
     InteractiveSocket.prototype.sendRaw = function (packet) {
         var data = JSON.stringify(packet);
@@ -326,6 +320,9 @@ var InteractiveSocket = (function (_super) {
         catch (err) {
             throw new errors_1.MessageParseError('Message returned was not valid JSON');
         }
+        if (message.hasOwnProperty('seq')) {
+            this.lastSequenceNumber = message.seq;
+        }
         switch (message.type) {
             case 'method':
                 this.emit('method', packets_1.Method.fromSocket(message));
@@ -340,13 +337,13 @@ var InteractiveSocket = (function (_super) {
     InteractiveSocket.prototype.getQueueSize = function () {
         return this.queue.size;
     };
+    // WebSocket constructor, may be overridden if the environment
+    // does not natively support it.
+    //tslint:disable-next-line:variable-name
+    InteractiveSocket.WebSocket = typeof WebSocket === 'undefined'
+        ? null
+        : WebSocket;
     return InteractiveSocket;
 }(events_1.EventEmitter));
-// WebSocket constructor, may be overridden if the environment
-// does not natively support it.
-//tslint:disable-next-line:variable-name
-InteractiveSocket.WebSocket = typeof WebSocket === 'undefined'
-    ? null
-    : WebSocket;
 exports.InteractiveSocket = InteractiveSocket;
 //# sourceMappingURL=Socket.js.map

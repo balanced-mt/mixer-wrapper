@@ -84,6 +84,13 @@ var Packet = (function (_super) {
     Packet.prototype.getState = function () {
         return this.state;
     };
+    /**
+     * Sets the sequence number on the outgoing packet.
+     */
+    Packet.prototype.setSequenceNumber = function (x) {
+        this.method.seq = x;
+        return this;
+    };
     Packet.prototype.setState = function (state) {
         if (state === this.state) {
             return;

@@ -14,6 +14,9 @@ export declare class Scene extends EventEmitter implements IScene {
     sceneID: string;
     controls: Map<string, IControl>;
     groups: any;
+    /**
+     * @deprecated etags are no longer used, you can always omit/ignore this
+     */
     etag: string;
     meta: IMeta;
     private client;

@@ -68,6 +68,7 @@ export interface IJoystick extends IControl, IJoystickData {
      * Updates the joystick with the supplied joystick parameters
      */
     update(controlUpdate: IJoystickUpdate): Promise<void>;
+    giveInput(input: IJoystickInput): Promise<void>;
     /**
      * Fired when a participant moves this joystick.
      */

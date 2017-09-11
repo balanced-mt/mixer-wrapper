@@ -57,21 +57,6 @@ describe('socket', () => {
             });
         });
 
-        it('connects with JWT auth', done => {
-            socket = new InteractiveSocket({ url, jwt: 'asdf!' }).connect();
-            server.on('connection', (ws: WebSocketModule) => {
-                expect(ws.upgradeReq.url).to.equal(
-                    '/?Authorization=JWT%20asdf!',
-                );
-                expect(ws.upgradeReq.headers.authorization).to.equal(
-                    undefined,
-                    'authorization header should be undefined when jwt auth is used',
-                );
-                closeNormal(ws);
-                done();
-            });
-        });
-
         it('connects with an OAuth token', done => {
             socket = new InteractiveSocket({
                 url,
@@ -86,23 +71,13 @@ describe('socket', () => {
                 done();
             });
         });
-
-        it('throws an error on ambiguous auth', () => {
-            expect(
-                () =>
-                    new InteractiveSocket({
-                        url,
-                        authToken: 'asdf!',
-                        jwt: 'wat?',
-                    }),
-            ).to.throw(/both JWT and OAuth token/);
-        });
     });
 
     describe('sending packets', () => {
         let ws: WebSocketModule;
         let next: sinon.SinonStub;
         let reset: sinon.SinonStub;
+        let checker: sinon.SinonStub;
 
         function greet() {
             ws.send(JSON.stringify(METHOD));
@@ -120,7 +95,7 @@ describe('socket', () => {
             });
         }
 
-        function assertAndReplyTo(payload: any) {
+        function assertAndReplyTo(payload: any, seq: number) {
             const data = JSON.parse(payload);
             expect(data).to.deep.equal(
                 {
@@ -131,6 +106,7 @@ describe('socket', () => {
                     params: {
                         foo: 'bar',
                     },
+                    seq,
                 },
                 'received method should match sent method',
             );
@@ -140,12 +116,15 @@ describe('socket', () => {
                     id: data.id,
                     error: null,
                     result: 'hi',
+                    seq: seq + 1,
                 }),
             );
         }
 
         beforeEach(ready => {
             awaitConnect(() => ready());
+            checker = sinon.stub();
+            checker.resolves();
             socket = new InteractiveSocket({
                 url,
                 pingInterval: 100,
@@ -153,6 +132,7 @@ describe('socket', () => {
             }).connect();
             const options: ISocketOptions = {
                 reconnectionPolicy: new ExponentialReconnectionPolicy(),
+                reconnectChecker: checker,
             };
             next = sinon.stub(options.reconnectionPolicy, 'next').returns(5);
             reset = sinon.stub(options.reconnectionPolicy, 'reset');
@@ -173,12 +153,14 @@ describe('socket', () => {
                 awaitConnect((newWs: WebSocketModule) => {
                     expect(next).to.have.been.calledOnce;
                     expect(reset).to.have.been.calledOnce;
+                    expect(checker).to.have.been.calledOnce;
                     closeNormal(newWs);
 
                     // Backs off again if establishing fails
                     awaitConnect((ws3: WebSocketModule) => {
                         expect(next).to.have.been.calledTwice;
                         expect(reset).to.have.been.calledTwice;
+                        expect(checker).to.have.been.calledTwice;
                         greet();
 
                         // Resets after connection is healthy again.
@@ -229,7 +211,7 @@ describe('socket', () => {
             });
             awaitConnect((newWs: WebSocketModule) => {
                 newWs.on('message', (payload: any) => {
-                    assertAndReplyTo(payload);
+                    assertAndReplyTo(payload, 0);
                     expect(socket.getQueueSize()).to.equal(1);
                 });
             });
@@ -241,12 +223,28 @@ describe('socket', () => {
 
         it('recieves a reply to a method', () => {
             ws.on('message', payload => {
-                assertAndReplyTo(payload);
+                assertAndReplyTo(payload, 0);
             });
 
             return socket.execute('hello', { foo: 'bar' }).then(res => {
                 expect(res).to.equal('hi');
             });
+        });
+
+        it('tracks packet sequence numbers', () => {
+            let completed = false;
+            ws.once('message', (payload1: any) => {
+                assertAndReplyTo(payload1, 0);
+
+                ws.once('message', (payload2: any) => {
+                    assertAndReplyTo(payload2, 1);
+                    completed = true;
+                });
+            });
+
+            return socket.execute('hello', { foo: 'bar' })
+                .then(() => socket.execute('hello', { foo: 'bar' }))
+                .then(() => expect(completed).to.equal(true, 'expected to have called twice'));
         });
 
         it('emits a method sent to it', done => {

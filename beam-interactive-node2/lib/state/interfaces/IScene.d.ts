@@ -38,7 +38,7 @@ export interface ISceneData {
      */
     meta?: IMeta;
     /**
-     * The scene's ETag.
+     * @deprecated etags are no longer used, you can always omit/ignore this
      */
     etag?: ETag;
 }
@@ -46,6 +46,9 @@ export interface IScene extends EventEmitter {
     sceneID: string;
     controls: Map<string, IControl>;
     meta: IMeta;
+    /**
+     * @deprecated etags are no longer used, you can always omit/ignore this
+     */
     etag: string;
     groups: any;
     getControl(id: string): IControl;

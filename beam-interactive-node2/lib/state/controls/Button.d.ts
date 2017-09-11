@@ -11,6 +11,11 @@ export declare class Button extends Control<IButtonData> implements IButton {
      */
     text: string;
     /**
+     * The tooltip text displayed when the participant hovers over the button.
+     * Set this value using [setTooltip]{@link Button.setTooltip}
+     */
+    tooltip: string;
+    /**
      * The spark cost of this button in sparks.
      * Set this value using [setCost]{@link Button.setCost}
      */
@@ -35,6 +40,10 @@ export declare class Button extends Control<IButtonData> implements IButton {
      * Sets a new text value for this button.
      */
     setText(text: string): Promise<void>;
+    /**
+     * Sets a new tooltip value for this button.
+     */
+    setTooltip(tooltip: string): Promise<void>;
     /**
      * Sets a progress value for this button.
      * A decimalized percentage (0.0 - 1.0)

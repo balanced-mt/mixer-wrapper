@@ -1,9 +1,8 @@
 import { EventEmitter } from 'events';
 import * as Url from 'url';
 
-import { CancelledError, InteractiveError, MessageParseError } from '../errors';
+import { CancelledError, InteractiveError, MessageParseError, TimeoutError } from '../errors';
 import { IRawValues } from '../interfaces';
-import { resolveOn } from '../util';
 import { Method, Packet, PacketState, Reply } from './packets';
 import {
     ExponentialReconnectionPolicy,
@@ -33,9 +32,6 @@ export interface ISocketOptions {
     //compression scheme, defaults to none, Will remain none until pako typings are updated
     compressionScheme?: CompressionScheme;
 
-    // Optional JSON web token to use for authentication.
-    jwt?: string;
-
     // Query params to add
     queryParams?: IRawValues;
 
@@ -49,6 +45,8 @@ export interface ISocketOptions {
     pingInterval?: number;
     // Any extra headers to include in the socket connection.
     extraHeaders?: IRawValues;
+    // Optional intercept function that can be run before socket reconnections.
+    reconnectChecker?: () => Promise<void>;
 }
 
 export interface IWebSocketOptions {
@@ -101,6 +99,7 @@ function getDefaults(): ISocketOptions {
         pingInterval: 10 * 1000,
         extraHeaders: {},
         queryParams: {},
+        reconnectChecker: () => Promise.resolve(),
     };
 }
 
@@ -118,6 +117,7 @@ export class InteractiveSocket extends EventEmitter {
     private state: SocketState = SocketState.Idle;
     private socket: any;
     private queue: Set<Packet> = new Set<Packet>();
+    private lastSequenceNumber = 0;
 
     constructor(options: ISocketOptions = {}) {
         super();
@@ -157,7 +157,7 @@ export class InteractiveSocket extends EventEmitter {
 
             if (this.state === SocketState.Refreshing) {
                 this.state = SocketState.Idle;
-                this.connect();
+                this.options.reconnectChecker().then(() => this.connect());
                 return;
             }
 
@@ -172,7 +172,7 @@ export class InteractiveSocket extends EventEmitter {
             this.state = SocketState.Reconnecting;
 
             this.reconnectTimeout = setTimeout(() => {
-                this.connect();
+                this.options.reconnectChecker().then(() => this.connect());
             }, this.options.reconnectionPolicy.next());
         });
     }
@@ -187,12 +187,6 @@ export class InteractiveSocket extends EventEmitter {
             this.options || getDefaults(),
             options,
         );
-        //TODO: Clear up auth here later
-        if (this.options.jwt && this.options.authToken) {
-            throw new Error(
-                'Cannot connect to Constellation with both JWT and OAuth token.',
-            );
-        }
     }
 
     /**
@@ -226,10 +220,6 @@ export class InteractiveSocket extends EventEmitter {
         if (this.options.authToken) {
             extras.headers['Authorization'] = `Bearer ${this.options
                 .authToken}`;
-        }
-        if (this.options.jwt) {
-            this.options.queryParams['Authorization'] = `JWT ${this.options
-                .jwt}`;
         }
         url.query = Object.assign({}, url.query, this.options.queryParams);
 
@@ -421,7 +411,7 @@ export class InteractiveSocket extends EventEmitter {
     }
 
     private sendPacketInner(packet: Packet) {
-        this.sendRaw(packet);
+        this.sendRaw(packet.setSequenceNumber(this.lastSequenceNumber));
     }
 
     private sendRaw(packet: any) {
@@ -440,6 +430,10 @@ export class InteractiveSocket extends EventEmitter {
             message = JSON.parse(messageString);
         } catch (err) {
             throw new MessageParseError('Message returned was not valid JSON');
+        }
+
+        if (message.hasOwnProperty('seq')) {
+            this.lastSequenceNumber = message.seq;
         }
 
         switch (message.type) {

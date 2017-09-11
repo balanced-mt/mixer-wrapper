@@ -16,6 +16,11 @@ export class Button extends Control<IButtonData> implements IButton {
      */
     public text: string;
     /**
+     * The tooltip text displayed when the participant hovers over the button.
+     * Set this value using [setTooltip]{@link Button.setTooltip}
+     */
+    public tooltip: string;
+    /**
      * The spark cost of this button in sparks.
      * Set this value using [setCost]{@link Button.setCost}
      */
@@ -42,6 +47,13 @@ export class Button extends Control<IButtonData> implements IButton {
      */
     public setText(text: string): Promise<void> {
         return this.updateAttribute('text', text);
+    }
+
+    /**
+     * Sets a new tooltip value for this button.
+     */
+    public setTooltip(tooltip: string): Promise<void> {
+        return this.updateAttribute('tooltip', tooltip);
     }
 
     /**
@@ -82,7 +94,8 @@ export class Button extends Control<IButtonData> implements IButton {
      */
     public update(controlUpdate: IButtonUpdate): Promise<void> {
         // Clone to prevent mutations
-        const changedData = { ...controlUpdate };
+        // XXX: Typescript 2.4 is strict, let the compiler be clever.
+        const changedData = Object.assign({}, controlUpdate );
         if (changedData.cooldown) {
             changedData.cooldown =
                 this.client.state.synchronizeLocalTime().getTime() +
