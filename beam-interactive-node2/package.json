@@ -1,6 +1,6 @@
 {
   "name": "beam-interactive-node2",
-  "version": "2.2.0",
+  "version": "2.4.0",
   "description": "Custom version of Mixer interactive, forked from https://github.com/mixer/interactive-node",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
