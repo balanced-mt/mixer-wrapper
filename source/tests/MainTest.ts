@@ -8,6 +8,7 @@ import {
 	IButton,
 	IInputEvent,
 	IButtonInput,
+	CarinaWrapper
 } from "../index";
 
 const config = require("../../config/config.json");
@@ -76,4 +77,33 @@ chatWrapper.onChatMessage.addCallback((msg) => {
 (async () => {
 	await wrapper.start();
 	await chatWrapper.start();
+})();
+
+const carina = new CarinaWrapper();
+
+carina.onFollowEvent.addCallback((data)=>{
+	console.log("onFollowEvent", data.user.username);
+});
+carina.onUnfollowEvent.addCallback((data)=>{
+	console.log("onUnfollowEvent", data.user.username);
+});
+
+carina.onResubscribeEvent.addCallback((data)=>{
+	console.log("onResubscribeEvent", data.user.username);
+});
+
+carina.onSubscribeEvent.addCallback((data)=>{
+	console.log("onSubscribeEvent", data.user.username);
+});
+
+carina.onSubscribeShareEvent.addCallback((data)=>{
+	console.log("onSubscribeShareEvent", data.user.username);
+});
+
+carina.onHostEvent.addCallback((data)=>{
+	console.log("onHostEvent", data.hoster.token);
+});
+
+(async () => {
+	await carina.start(config.channelId);
 })();

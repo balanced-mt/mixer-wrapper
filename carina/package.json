@@ -1,0 +1,13 @@
+{
+  "name": "carina",
+  "version": "0.9.1",
+  "description": "Custom version of Mixer.com's constellation socket, forked from https://github.com/mixer/carina",
+  "main": "dist/commonjs",
+  "typings": "dist/index.d.ts",
+  "license": "MIT",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "pako": "^1.0.3"
+  }
+}
