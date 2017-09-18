@@ -48,7 +48,7 @@ wrapper.defaultScene.addControl(testButton,
 
 testButton.onMouseUpEvent.addCallback((event, participant)=>{
 	chatWrapper.sendChatMessage(participant.username + " clicked a button");
-	testButton.setCooldown(10 * 1000); // 10 secounds
+	testButton.setCooldown(30 * 1000); // 30 secounds
 	testButton.sparkCost++;
 
 	/*

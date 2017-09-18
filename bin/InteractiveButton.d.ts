@@ -10,16 +10,19 @@ export declare class InteractiveButton extends InteractiveControl<IButton, IButt
     protected _cooldown: number | undefined;
     protected _progress: number | undefined;
     private _disabled;
+    private _forceCooldown;
     constructor(wrapper: InteractiveWrapper | undefined, id: string, text: string);
     text: string;
     disabled: boolean;
     sparkCost: number | undefined;
     setCooldown(cooldown: number, force?: boolean): void;
     getCooldown(): number;
+    forceCooldownCheck: boolean;
     setProgress(progress: number): void;
     getProgress(): number;
     onMouseDownEvent: Event<(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) => void>;
     onMouseUpEvent: Event<(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) => void>;
+    private _lastClick;
     onMouseDown(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton): void;
     onMouseUp(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton): void;
     /**********************************************************************/

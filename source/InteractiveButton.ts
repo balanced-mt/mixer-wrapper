@@ -21,6 +21,7 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 	protected _cooldown: number | undefined = undefined;
 	protected _progress: number | undefined = undefined;
 	private _disabled: boolean = false;
+	private _forceCooldown: boolean = true;
 
 	constructor(wrapper: InteractiveWrapper | undefined, id: string, text: string) {
 		super(wrapper, id);
@@ -72,6 +73,14 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		return this._cooldown - this.wrapper.now;
 	}
 
+	get forceCooldownCheck() {
+		return this._forceCooldown;
+	}
+
+	set forceCooldownCheck(forceCooldown: boolean) {
+		this._forceCooldown = (forceCooldown == true);
+	}
+
 	setProgress(progress: number) {
 		if (progress < 0.0) {
 			progress = 0.0;
@@ -92,11 +101,20 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 	onMouseDownEvent: Event<(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) => void> = new Event<any>();
 	onMouseUpEvent: Event<(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) => void> = new Event<any>();
 
+	private _lastClick: number = -1;
 	onMouseDown(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
+		if (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1) {
+			return;
+		}
+		this._lastClick = participant.userID;
 		this.onMouseDownEvent.execute(event, participant, beamControl);
 	}
 
 	onMouseUp(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
+		if (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1 && this._lastClick !== participant.userID) {
+			return;
+		}
+		this._lastClick = -1;
 		this.onMouseUpEvent.execute(event, participant, beamControl);
 	}
 
