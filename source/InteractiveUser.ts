@@ -1,6 +1,5 @@
 import {
-	IParticipant,
-	ETag
+	IParticipant
 } from "../beam-interactive-node2";
 
 import { Event } from "./common/utils/Event";
@@ -58,10 +57,6 @@ export class InteractiveUser {
 
 	get sessionID() {
 		return (this.internal !== undefined ? this.internal.sessionID : undefined);
-	}
-
-	get etag() {
-		return (this.internal !== undefined ? this.internal.etag : undefined);
 	}
 
 	getData(name: string) {

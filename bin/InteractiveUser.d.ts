@@ -14,7 +14,6 @@ export declare class InteractiveUser {
     readonly userID: number;
     readonly username: string;
     readonly sessionID: string;
-    readonly etag: string;
     getData(name: string): {
         [K: string]: any;
     };

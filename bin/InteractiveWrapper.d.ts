@@ -40,6 +40,11 @@ export declare class InteractiveWrapper {
     private scenesInitialized;
     private groupsInitialized;
     beamInit(): Promise<void>;
+    private loggingEnabled;
+    enableLogging(): void;
+    disableLogging(): void;
+    static logMessage(message: any): void;
+    static logSend(message: any): void;
     start(): Promise<void>;
     stop(): void;
     update(): void;

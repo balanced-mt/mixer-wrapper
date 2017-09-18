@@ -40,7 +40,6 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 
 	protected static async UpdateAttribute<T extends IControl, K extends keyof T>(beamControl: T, attribute: K, value: T[K]): Promise<void> {
 		const packet: T = <T>{};
-		packet.etag = beamControl.etag;
 		packet.controlID = beamControl.controlID;
 
 		packet[attribute] = value;
@@ -53,7 +52,6 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 
 	protected static async UpdateAttributes<T extends IControl, K extends keyof T>(beamControl: T, updates: { attribute: K, value: T[K] }[]): Promise<void> {
 		const packet: T = <T>{};
-		packet.etag = beamControl.etag;
 		packet.controlID = beamControl.controlID;
 
 		updates.forEach((update) => {
@@ -111,8 +109,6 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 
 		if (this.activeControls.size <= 0) {
 			this.dirtyFlags = 0;
-		} else if (this.activeControls.size > 1) {
-			throw new Error("NYI");
 		} else if (!this.updateLock && this.dirtyFlags !== 0 && (this.lastUpdate === undefined || this.lastUpdate + 50 < time)) {
 			let dirtyBits = this.dirtyFlags;
 			this.dirtyFlags = 0;
@@ -135,26 +131,11 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 						clearTimeout(timeout);
 						this.markDirty(dirtyBits);
 						this.updateLock = false;
-						console.error("Handling reject", error);
-						// FIXME hax "fix" the broken etag
-						this.wrapper.client.getScenes().then((scenes) => {
-							if (scenes.scenes) {
-								scenes.scenes.forEach((scene) => {
-									if (scene.controls) {
-										scene.controls.forEach((control) => {
-											if (control.controlID === beamControl.controlID) {
-												console.error("Fixing etag", beamControl.etag, control.etag);
-												beamControl.etag = control.etag;
-											}
-										});
-									}
-								});
-							}
-						});
+						console.error("[InteractiveControl] Handling reject", error);
 					});
 				});
 			} else {
-				throw new Error("Dirty but no updates!");
+				throw new Error("[InteractiveControl] Dirty but no updates!");
 			}
 		}
 	}

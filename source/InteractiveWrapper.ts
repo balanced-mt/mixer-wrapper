@@ -3,11 +3,10 @@ import {
 	IParticipant,
 	IScene,
 	setWebSocket,
-	ETag,
 	IGroup,
 } from "../beam-interactive-node2";
 
-import * as ws from 'ws';
+import * as ws from "ws";
 import { Event } from "./common/utils/Event";
 import { InteractiveScene } from "./InteractiveScene";
 import { InteractiveUser } from "./InteractiveUser";
@@ -23,7 +22,6 @@ Full restart (main)
 Partial diffs would be pointless but we should be able to replace Scenes and Controls
 
 [Wrapper] Controls can exist in multiple places (using multiple beam controls, 1 per scene)
-[Wrapper] Dirty flag for controls, catching mismatch etags, sync [every 50ms and hard sync(when etag error is caught) every second]
 
 Decorators magic?
 */
@@ -32,7 +30,6 @@ Decorators magic?
 interface IUpdateParticipants {
 	participants: {
 		sessionID: string;
-		etag: ETag;
 		groupID: string;
 	}[];
 }
@@ -174,7 +171,7 @@ export class InteractiveWrapper {
 	async moveUsers(users: InteractiveUser[], group: InteractiveGroup, currentTry: number = 0) {
 		return this.client.execute<IUpdateParticipants>(
 			"updateParticipants",
-			{ participants: users.map((user) => { return { sessionID: user.sessionID, etag: user.etag, groupID: group.id }; }) },
+			{ participants: users.map((user) => { return { sessionID: user.sessionID, groupID: group.id }; }) },
 			false).then((users) => {
 				users.participants.forEach((user: IParticipant) => {
 					this.userIDMap.get(user.userID).setParticipant(user, true);
@@ -243,21 +240,46 @@ export class InteractiveWrapper {
 		}
 	}
 
+	private loggingEnabled = false;
+
+	enableLogging() {
+		if (this.client && !this.loggingEnabled) {
+			this.client.on("message", InteractiveWrapper.logMessage);
+			this.client.on("send", InteractiveWrapper.logSend);
+		}
+		this.loggingEnabled = true;
+	}
+
+	disableLogging() {
+		if (this.client && this.loggingEnabled) {
+			this.client.removeListener("message", InteractiveWrapper.logMessage);
+			this.client.removeListener("send", InteractiveWrapper.logSend);
+		}
+		this.loggingEnabled = false;
+	}
+
+	static logMessage(message:any){
+		console.log("[InteractiveWrapper] <<<", message);
+	}
+
+	static logSend(message:any){
+		console.log("[InteractiveWrapper] >>>", message);
+	}
+
 	async start() {
 		(this as any).client = new GameClient();
 
-		//this.client.on('message', (err: any) => {
-		//	console.log('<<<', err);
-		//});
-		//this.client.on('send', (err: any) => {
-		//	console.log('>>>', err);
-		//});
-		this.client.on('error', (err: any) => {
+		if (this.loggingEnabled) {
+			this.client.on("message", InteractiveWrapper.logMessage);
+			this.client.on("send", InteractiveWrapper.logSend);
+		}
+
+		this.client.on("error", (err: any) => {
 			console.error("[InteractiveWrapper] error ", err);
 		});
 
 
-		this.client.state.on('participantJoin', (participant: IParticipant) => {
+		this.client.state.on("participantJoin", (participant: IParticipant) => {
 
 			let user = this.userIDMap.get(participant.userID);
 			if (user === undefined) {
@@ -275,7 +297,7 @@ export class InteractiveWrapper {
 			this.onUserJoin.execute(user);
 		});
 
-		this.client.state.on('participantLeave', (sessionID: string) => {
+		this.client.state.on("participantLeave", (sessionID: string) => {
 			let user = this.sessionMap.get(sessionID);
 			if (user !== undefined) {
 				this.sessionMap.delete(sessionID);
@@ -288,19 +310,19 @@ export class InteractiveWrapper {
 		});
 
 		// Log when we're connected to interactive
-		this.client.on('open', () => {
+		this.client.on("open", () => {
 			(this.client as any).socket.options.autoReconnect = false;
-			console.log('Connected to interactive');
+			console.log("Connected to interactive");
 		});
 
 		this.client.state.on("ready", async (ready) => {
 			if (ready) {
-				console.log('Ready!');
+				console.log("Ready!");
 				await this.beamInit();
 				this.onInit.execute();
 				this.onReady.execute();
 			} else {
-				console.log('Not ready?');
+				console.log("Not ready?");
 			}
 		});
 
@@ -382,7 +404,7 @@ export class InteractiveWrapper {
 	}
 
 	private async updateGroup(group: IGroup, sceneID: string) {
-		let reply = await this.client.updateGroups({ groups: [{ groupID: group.groupID, etag: group.etag, sceneID: sceneID }] });
+		let reply = await this.client.updateGroups({ groups: [{ groupID: group.groupID, sceneID: sceneID }] });
 		let groupID = reply.groups[0].groupID;
 
 		return this.client.state.getGroup(groupID);

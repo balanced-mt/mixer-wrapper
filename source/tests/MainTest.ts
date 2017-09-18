@@ -36,6 +36,9 @@ class ChangeSceneButton extends InteractiveButton {
 
 const wrapper = new InteractiveWrapper(config.interactiveOauth.access, config.interactiveId);
 
+const newScene = new InteractiveScene(wrapper, "newScene", "newScene");
+const newGroup = new InteractiveGroup(wrapper, newScene, "newScene");
+
 let testButton = new InteractiveButton(wrapper, "testButton", "Test buttons!");
 testButton.sparkCost = 1;
 wrapper.defaultScene.addControl(testButton,
@@ -60,7 +63,48 @@ testButton.onMouseUpEvent.addCallback((event, participant)=>{
 	});
 	
 	*/
-})
+});
+
+wrapper.defaultScene.addControl(new ChangeSceneButton(wrapper, "newSceneButton", "New Scene", newGroup), 
+[
+	{ size: "large", width: 80, height: 4, x: 0, y: 4 },
+	{ size: "medium", width: 11, height: 4, x: 0, y: 4 },
+	{ size: "small", width: 7, height: 4, x: 0, y: 4 }
+]);
+
+wrapper.addScene(newScene);
+wrapper.addGroup(newGroup);
+
+newScene.addControl(testButton,
+	[
+		{ size: "large", width: 80, height: 4, x: 0, y: 0 },
+		{ size: "medium", width: 11, height: 4, x: 0, y: 0 },
+		{ size: "small", width: 7, height: 4, x: 0, y: 0 }
+	]
+);
+
+let testButton2 = new InteractiveButton(wrapper, "testButton2", "Test buttons2!");
+testButton2.sparkCost = 1;
+newScene.addControl(testButton2,
+	[
+		{ size: "large", width: 80, height: 4, x: 0, y: 4 },
+		{ size: "medium", width: 11, height: 4, x: 0, y: 4 },
+		{ size: "small", width: 7, height: 4, x: 0, y: 4 }
+	]
+);
+
+testButton2.onMouseUpEvent.addCallback((event, participant)=>{
+	chatWrapper.sendChatMessage(participant.username + " clicked a button");
+	testButton2.setCooldown(10 * 1000); // 30 secounds
+	testButton2.sparkCost++;
+});
+
+newScene.addControl(new ChangeSceneButton(wrapper, "backButton", "Back", wrapper.defaultGroup), 
+[
+	{ size: "large", width: 80, height: 4, x: 0, y: 8 },
+	{ size: "medium", width: 11, height: 4, x: 0, y: 8 },
+	{ size: "small", width: 7, height: 4, x: 0, y: 8 }
+]);
 
 wrapper.onReady.addCallback(() => {
 });
