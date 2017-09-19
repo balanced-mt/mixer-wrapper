@@ -99,7 +99,10 @@ export class InteractiveWrapper {
 			await scene.destroy();
 			this.tempScenes.unshift(internal);
 		} else {
-			throw new Error("NYI");
+			this.sceneMap.delete(scene.id);
+			let internal: IScene = (scene as any).internal;
+			await scene.destroy();
+			await this.deleteScene(internal.sceneID, "default");
 		}
 	}
 
@@ -145,7 +148,10 @@ export class InteractiveWrapper {
 			await group.destroy();
 			this.tempGroups.unshift(internal);
 		} else {
-			throw new Error("NYI");
+			this.groupMap.delete(group.id);
+			let internal: IGroup = (group as any).internal;
+			await group.destroy();
+			await this.deleteGroup(internal.groupID, "default");
 		}
 	}
 
@@ -382,12 +388,12 @@ export class InteractiveWrapper {
 		return undefined;
 	}
 
-	/*private async deleteScene(id: string, reassignSceneID: string) {
+	private async deleteScene(id: string, reassignSceneID: string) {
 		return this.client.execute<any>("deleteScene", {
 			"sceneID": id,
 			"reassignSceneID": reassignSceneID
 		}, false);
-	}*/
+	}
 
 	private async createGroup(id: string, sceneID: string) {
 		let reply = await this.client.createGroups({ groups: [{ groupID: id, sceneID: sceneID }] });
@@ -410,10 +416,10 @@ export class InteractiveWrapper {
 		return this.client.state.getGroup(groupID);
 	}
 
-	/*private async deleteGroup(id: string, reassignGroupID: string) {
+	private async deleteGroup(id: string, reassignGroupID: string) {
 		return await this.client.execute<any>("deleteGroup", {
 			"groupID": id,
 			"reassignGroupID": reassignGroupID
 		}, false);
-	}*/
+	}
 }

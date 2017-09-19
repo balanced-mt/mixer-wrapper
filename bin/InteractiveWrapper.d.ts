@@ -49,6 +49,8 @@ export declare class InteractiveWrapper {
     stop(): void;
     update(): void;
     private createScene(id);
+    private deleteScene(id, reassignSceneID);
     private createGroup(id, sceneID);
     private updateGroup(group, sceneID);
+    private deleteGroup(id, reassignGroupID);
 }

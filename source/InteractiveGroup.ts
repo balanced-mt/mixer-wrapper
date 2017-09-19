@@ -35,9 +35,10 @@ export class InteractiveGroup {
 		this.userMap.clear();
 		if (this.isValid) {
 			this.internal = undefined;
-			(this as any).id = undefined;
-			this.onUserEnterEvent.clearCallbacks();
-			this.onUserLeaveEvent.clearCallbacks();
+			if (this.temporary) {
+				this.onUserEnterEvent.clearCallbacks();
+				this.onUserLeaveEvent.clearCallbacks();
+			}
 		}
 	}
 

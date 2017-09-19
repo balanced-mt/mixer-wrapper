@@ -41,7 +41,6 @@ export class InteractiveScene {
 			await this.internal.deleteAllControls();
 			this.controlsInitialized = false;
 			this.internal = undefined;
-			(this as any).id = undefined;
 		}
 	}
 

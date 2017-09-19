@@ -35,6 +35,7 @@ class ChangeSceneButton extends InteractiveButton {
 }
 
 const wrapper = new InteractiveWrapper(config.interactiveOauth.access, config.interactiveId);
+wrapper.enableLogging();
 
 const newScene = new InteractiveScene(wrapper, "newScene", "newScene");
 const newGroup = new InteractiveGroup(wrapper, newScene, "newScene");
@@ -93,10 +94,15 @@ newScene.addControl(testButton2,
 	]
 );
 
-testButton2.onMouseUpEvent.addCallback((event, participant)=>{
+testButton2.onMouseUpEvent.addCallback(/*async */(event, participant)=>{
 	chatWrapper.sendChatMessage(participant.username + " clicked a button");
 	testButton2.setCooldown(10 * 1000); // 30 secounds
 	testButton2.sparkCost++;
+	/*await participant.move(wrapper.defaultGroup);
+	await wrapper.removeScene(newScene);
+	await wrapper.removeGroup(newGroup);
+	await wrapper.addScene(newScene);
+	await wrapper.addGroup(newGroup);*/
 });
 
 newScene.addControl(new ChangeSceneButton(wrapper, "backButton", "Back", wrapper.defaultGroup), 
