@@ -51,7 +51,7 @@ wrapper.defaultScene.addControl(testButton,
 	]
 );
 
-testButton.onMouseUpEvent.addCallback((event, participant)=>{
+testButton.onMouseUpEvent.addCallback((event, participant) => {
 	chatWrapper.sendChatMessage(participant.username + " clicked a button");
 	testButton.setCooldown(30 * 1000); // 30 secounds
 	testButton.sparkCost++;
@@ -67,12 +67,12 @@ testButton.onMouseUpEvent.addCallback((event, participant)=>{
 	*/
 });
 
-wrapper.defaultScene.addControl(new ChangeSceneButton(wrapper, "newSceneButton", "New Scene", newGroup), 
-[
-	{ size: "large", width: 80, height: 4, x: 0, y: 4 },
-	{ size: "medium", width: 11, height: 4, x: 0, y: 4 },
-	{ size: "small", width: 7, height: 4, x: 0, y: 4 }
-]);
+wrapper.defaultScene.addControl(new ChangeSceneButton(wrapper, "newSceneButton", "New Scene", newGroup),
+	[
+		{ size: "large", width: 80, height: 4, x: 0, y: 4 },
+		{ size: "medium", width: 11, height: 4, x: 0, y: 4 },
+		{ size: "small", width: 7, height: 4, x: 0, y: 4 }
+	]);
 
 wrapper.addScene(newScene);
 wrapper.addGroup(newGroup);
@@ -95,7 +95,7 @@ newScene.addControl(testButton2,
 	]
 );
 
-testButton2.onMouseUpEvent.addCallback(/*async */(event, participant)=>{
+testButton2.onMouseUpEvent.addCallback(/*async */(event, participant) => {
 	chatWrapper.sendChatMessage(participant.username + " clicked a button");
 	testButton2.setCooldown(10 * 1000); // 30 secounds
 	testButton2.sparkCost++;
@@ -106,12 +106,12 @@ testButton2.onMouseUpEvent.addCallback(/*async */(event, participant)=>{
 	await wrapper.addGroup(newGroup);*/
 });
 
-newScene.addControl(new ChangeSceneButton(wrapper, "backButton", "Back", wrapper.defaultGroup), 
-[
-	{ size: "large", width: 80, height: 4, x: 0, y: 8 },
-	{ size: "medium", width: 11, height: 4, x: 0, y: 8 },
-	{ size: "small", width: 7, height: 4, x: 0, y: 8 }
-]);
+newScene.addControl(new ChangeSceneButton(wrapper, "backButton", "Back", wrapper.defaultGroup),
+	[
+		{ size: "large", width: 80, height: 4, x: 0, y: 8 },
+		{ size: "medium", width: 11, height: 4, x: 0, y: 8 },
+		{ size: "small", width: 7, height: 4, x: 0, y: 8 }
+	]);
 
 wrapper.onReady.addCallback(() => {
 });
@@ -132,26 +132,26 @@ chatWrapper.onChatMessage.addCallback((msg) => {
 
 const carina = new CarinaWrapper();
 
-carina.onFollowEvent.addCallback((data)=>{
+carina.onFollowEvent.addCallback((data) => {
 	console.log("onFollowEvent", data.user.username);
 });
-carina.onUnfollowEvent.addCallback((data)=>{
+carina.onUnfollowEvent.addCallback((data) => {
 	console.log("onUnfollowEvent", data.user.username);
 });
 
-carina.onResubscribeEvent.addCallback((data)=>{
+carina.onResubscribeEvent.addCallback((data) => {
 	console.log("onResubscribeEvent", data.user.username);
 });
 
-carina.onSubscribeEvent.addCallback((data)=>{
+carina.onSubscribeEvent.addCallback((data) => {
 	console.log("onSubscribeEvent", data.user.username);
 });
 
-carina.onSubscribeShareEvent.addCallback((data)=>{
+carina.onSubscribeShareEvent.addCallback((data) => {
 	console.log("onSubscribeShareEvent", data.user.username);
 });
 
-carina.onHostEvent.addCallback((data)=>{
+carina.onHostEvent.addCallback((data) => {
 	console.log("onHostEvent", data.hoster.token);
 });
 

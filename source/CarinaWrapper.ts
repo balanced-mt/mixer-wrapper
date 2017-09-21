@@ -20,8 +20,8 @@ export class CarinaWrapper {
 
 	onHostEvent: Event<(data: CarinaInterface.ChannelHosted) => void> = new Event<any>();
 
-	
-	async start(channelID:number) {
+
+	async start(channelID: number) {
 		this.ca = new Carina({
 			isBot: true
 			//replyTimeout: 3000
@@ -56,7 +56,7 @@ export class CarinaWrapper {
 		this.ca.subscribe<CarinaInterface.ChannelHosted>(`channel:${channelID}:hosted`, data => {
 			this.onHostEvent.execute(data);
 		});
-		
+
 		await Utils.Timeout(100);
 
 		return true;

@@ -264,11 +264,11 @@ export class InteractiveWrapper {
 		this.loggingEnabled = false;
 	}
 
-	static logMessage(message:any){
+	static logMessage(message: any) {
 		console.log("[InteractiveWrapper] <<<", message);
 	}
 
-	static logSend(message:any){
+	static logSend(message: any) {
 		console.log("[InteractiveWrapper] >>>", message);
 	}
 
