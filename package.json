@@ -1,13 +1,21 @@
 {
   "name": "mixer-wrapper",
   "version": "1.0.5",
-  "description": "Wrapper for mixer's interactive and chat bot",
+  "description": "Wrapper for mixer's interactive, carina, REST api and chat bot",
   "main": "bin/index.js",
   "typings": "bin/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.build.json"
   },
-  "author": "",
+  "author": "JohnyCilohokla",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hewmen/mixer-wrapper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hewmen/mixer-wrapper/issues"
+  },
+  "homepage": "https://github.com/hewmen/mixer-wrapper#readme",
   "dependencies": {
     "beam-client-node": "^0.13.0",
     "ws": "^3.1.0",
