@@ -1,6 +1,6 @@
 {
   "name": "mixer-wrapper",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Wrapper for mixer's interactive, carina, REST api and chat bot",
   "main": "bin/index.js",
   "typings": "bin/index.d.ts",
