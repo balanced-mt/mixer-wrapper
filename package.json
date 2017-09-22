@@ -1,6 +1,6 @@
 {
   "name": "mixer-wrapper",
-  "version": "1.0.9",
+  "version": "1.0.8",
   "description": "Wrapper for mixer's interactive, carina, REST api and chat bot",
   "main": "bin/index.js",
   "typings": "bin/index.d.ts",
@@ -18,16 +18,16 @@
   "homepage": "https://github.com/hewmen/mixer-wrapper#readme",
   "dependencies": {
     "beam-client-node": "^0.13.0",
-    "ws": "^3.1.0",
-    "deepmerge": "^1.3.2",
-    "pako": "^1.0.3"
+    "deepmerge": "^1.5.2",
+    "pako": "^1.0.3",
+    "ws": "^3.2.0"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.11",
     "@types/node": "^6.0.45",
     "@types/pako": "^0.2.31",
-    "@types/bluebird": "^3.5.8",
-    "@types/request": "^2.0.0",
+    "@types/request": "^2.0.3",
     "@types/ws": "^3.0.2",
-    "typescript": "^2.4.2"
+    "typescript": "^2.5.2"
   }
 }

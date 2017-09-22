@@ -28,6 +28,11 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		this.text = text;
 	}
 
+	/**
+	 * [Property] Text displayed on the button
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
 	get text() {
 		return this._text;
 	}
@@ -39,6 +44,11 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		}
 	}
 
+	/**
+	 * [Property] Disabled state - Buttons which are disabled cannot be interacted with
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
 	get disabled() {
 		return this._disabled;
 	}
@@ -50,6 +60,11 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		}
 	}
 
+	/**
+	 * [Property] Spark cost
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
 	get sparkCost() {
 		return this._sparkCost;
 	}
@@ -61,26 +76,40 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		}
 	}
 
-	setCooldown(cooldown: number, force?: boolean) {
-		let time = this.wrapper.now + cooldown;
-		if (force || this._cooldown === undefined || time > this._cooldown) {
-			this._cooldown = time;
-			this.markDirty(ControlVariableFlags.Cooldown);
+	/**
+	 * [Property] Progress of the progress bar which is displayed at the bottom of a button
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
+	get progress() {
+		return this._sparkCost;
+	}
+
+	set progress(progress: number | undefined) {
+		progress = progress || 0;
+		if (progress < 0.0) {
+			progress = 0.0;
+		}
+		if (progress > 1.0) {
+			progress = 1.0;
+		}
+		if (this._progress !== progress) {
+			this._progress = progress;
+			this.markDirty(ControlVariableFlags.Progress);
 		}
 	}
 
-	getCooldown() {
-		return this._cooldown - this.wrapper.now;
+	// TODO remove
+	/**
+	 * @Deprecated Look at InteractiveButton.progress
+	 */
+	getProgress() {
+		return this._progress;
 	}
 
-	get forceCooldownCheck() {
-		return this._forceCooldown;
-	}
-
-	set forceCooldownCheck(forceCooldown: boolean) {
-		this._forceCooldown = (forceCooldown == true);
-	}
-
+	/**
+	 * @Deprecated Look at InteractiveButton.progress
+	 */
 	setProgress(progress: number) {
 		if (progress < 0.0) {
 			progress = 0.0;
@@ -94,15 +123,60 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		}
 	}
 
-	getProgress() {
-		return this._progress;
+	/**
+	 * Returns the current cooldown.
+	 * 
+	 * Cooldown prevents interaction until it expires
+	 */
+	getCooldown() {
+		return this._cooldown - this.wrapper.now;
 	}
 
+	/**
+	 * Sets the cooldown, if there is another cooldown already active it will pick the highest one.
+	 * 
+	 * Optional force parameter will force the cooldown.
+	 * 
+	 * Marks Cooldown as dirty when needed.
+	 */
+	setCooldown(cooldown: number, force?: boolean) {
+		let time = this.wrapper.now + cooldown;
+		if (force || this._cooldown === undefined || time > this._cooldown) {
+			this._cooldown = time;
+			this.markDirty(ControlVariableFlags.Cooldown);
+		}
+	}
+
+	/**
+	 * [Property] Force cooldown check
+	 * 
+	 * Force cooldown check will enforce the cooldowns on this end.
+	 */
+	get forceCooldownCheck() {
+		return this._forceCooldown;
+	}
+
+	/**
+	 * [Property] Force cooldown check.
+	 * 
+	 * Force cooldown check will enforce the cooldowns on this end.
+	 */
+	set forceCooldownCheck(forceCooldown: boolean) {
+		this._forceCooldown = (forceCooldown == true);
+	}
+
+	/**
+	 * Event called when viewer presses a button.
+	 */
 	onMouseDownEvent: Event<(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) => void> = new Event<any>();
+
+	/**
+	 * Event called when viewer releases a button.
+	 */
 	onMouseUpEvent: Event<(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) => void> = new Event<any>();
 
 	private _lastClick: number = -1;
-	onMouseDown(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
+	protected onMouseDown(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
 		if (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1) {
 			return;
 		}
@@ -110,7 +184,7 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		this.onMouseDownEvent.execute(event, participant, beamControl);
 	}
 
-	onMouseUp(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
+	protected onMouseUp(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
 		if (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1 && this._lastClick !== participant.userID) {
 			return;
 		}
@@ -135,37 +209,6 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 			disabled: this._disabled
 		};
 	}
-
-	// TODO merge into dirty flag
-	// TODO async
-	/*private async internalChangeText(text: string) {
-		for (var [key, beamControl] of this.activeControls) {
-			await InteractiveControl.UpdateAttribute(beamControl, "text", text).then((result: any) => {
-				console.log("result:");
-				console.log(result);
-			}).catch((error: any) => {
-				console.log("error:");
-				console.log(error);
-			});
-		};
-		return true;
-	}*/
-
-	// TODO merge into dirty flag
-	// TODO async
-	/*private async internalChangeCooldown(time: number) {
-		for (var [key, beamControl] of this.activeControls) {
-			await InteractiveControl.UpdateAttribute(beamControl, "cooldown", time);
-		}
-		return true;
-	}*/
-
-	/*private async internalChangeCost(cost: number) {
-		for (var [key, beamControl] of this.activeControls) {
-			await InteractiveControl.UpdateAttribute(beamControl, "cost", cost);
-		}
-		return true;
-	}*/
 
 	onAdded(scene: InteractiveScene, beamControl: IButton) {
 		super.onAdded(scene, beamControl);

@@ -18,7 +18,13 @@ export enum ControlVariableFlags {
 
 export abstract class InteractiveControl<T extends IControl, K extends IControlData> {
 
+	/**
+	 * Instance of InteractiveWrapper that was used to create this control.
+	 */
 	public readonly wrapper: InteractiveWrapper | undefined;
+	/**
+	 * Internal control id.
+	 */
 	public readonly id: string;
 
 	protected activeScenes: Map<string, InteractiveScene> = new Map();
@@ -29,15 +35,31 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 		this.id = id;
 	}
 
+	/**
+	 * Event called when control is updated.
+	 */
 	onUpdate: Event<(time: number) => void> = new Event<any>();
+
+	/**
+	 * Event called when control is deleted.
+	 */
 	onDeleted: Event<() => void> = new Event<any>();
 
 	/**********************************************************************/
 
+	/**
+	 * Return the sceneID for the control for a specific InteractiveScene.
+	 */
 	abstract getSceneID(scene: InteractiveScene): string;
 
+	/**
+	 * Return control data, ready to be sent to the server.
+	 */
 	abstract getData(scene: InteractiveScene, position: IGridPlacement[]): K;
 
+	/**
+	 * Updates a specific attribute.
+	 */
 	protected static async UpdateAttribute<T extends IControl, K extends keyof T>(beamControl: T, attribute: K, value: T[K]): Promise<void> {
 		const packet: T = <T>{};
 		packet.controlID = beamControl.controlID;
@@ -50,6 +72,9 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 		});
 	}
 
+	/**
+	 * Updates attributes.
+	 */
 	protected static async UpdateAttributes<T extends IControl, K extends keyof T>(beamControl: T, updates: { attribute: K, value: T[K] }[]): Promise<void> {
 		const packet: T = <T>{};
 		packet.controlID = beamControl.controlID;
@@ -63,6 +88,11 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 		});
 	}
 
+	/**
+	 * @Internal
+	 * 
+	 * Called when control is added to a scene.
+	 */
 	onAdded(scene: InteractiveScene, beamControl: T) {
 		if (this.activeScenes.has(scene.id)) {
 			throw new Error(`[InteractiveControl:onAdded] Scene '${scene.id}' already contains control '${this.id}'!`);
@@ -72,6 +102,11 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 		this.activeControls.set(scene, beamControl);
 	}
 
+	/**
+	 * @Internal
+	 * 
+	 * Called when control is removed from a scene.
+	 */
 	onRemoved(scene: InteractiveScene) {
 		if (!this.activeScenes.has(scene.id)) {
 			throw new Error(`[InteractiveControl:onRemoved] Scene '${scene.id}' doesn't contain control '${this.id}'!`);
@@ -81,24 +116,48 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 		this.activeControls.delete(scene);
 	}
 
+	/**
+	 * @Internal
+	 * 
+	 * Return the raw Interactive control.
+	 */
 	getBeamControl(scene: InteractiveScene) {
 		return this.activeControls.get(scene);
 	}
 
+	/**
+	 * @Internal
+	 * 
+	 * Dirty flags
+	 */
 	private dirtyFlags = 0;
 
+	/**
+	 * @Internal
+	 * 
+	 * Marks flag as dirty forcing an update.
+	 */
 	protected markDirty(flag: number) {
 		if (this.activeControls.size > 0) {
 			this.dirtyFlags |= flag;
 		}
 	}
 
+	/**
+	 * @Internal
+	 * 
+	 * Gathers updates from the control based on dirty flags to send to the server.
+	 */
 	protected gatherUpdates(dirtyBits: number, updates: { attribute: string, value: any }[]) {
 
 	}
 
 	lastUpdate: number = undefined;
 	private updateLock = false;
+
+	/**
+	 * @Internal
+	 */
 	internalUpdate(time: number) {
 		this.onUpdate.execute(time);
 

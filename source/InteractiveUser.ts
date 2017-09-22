@@ -43,18 +43,30 @@ export class InteractiveUser {
 		return false;
 	}
 
+	/**
+	 * [Property][Readonly] Returns true is the user is still connected
+	 */
 	get connected() {
 		return this.internal !== undefined;
 	}
 
+	/**
+	 * [Property][Readonly] Returns userID
+	 */
 	get userID() {
 		return this._userID;
 	}
 
+	/**
+	 * [Property][Readonly] Returns username
+	 */
 	get username() {
 		return (this.internal !== undefined ? this.internal.username : this._username);
 	}
 
+	/**
+	 * [Property][Readonly] Returns sessionID
+	 */
 	get sessionID() {
 		return (this.internal !== undefined ? this.internal.sessionID : undefined);
 	}
@@ -77,6 +89,11 @@ export class InteractiveUser {
 		return data;
 	}
 
+	/**
+	 * Moves the user to a new InteractiveGroup.
+	 * 
+	 * Returns a promise which will resolve after the user is moved
+	 */
 	async move(group: InteractiveGroup) {
 		if (this.connected) {
 			return this.wrapper.moveUsers([this], group);
@@ -108,7 +125,9 @@ export class InteractiveUser {
 		}
 	}
 
-	setupInternal() {
+	/**********************************************************************/
+
+	private setupInternal() {
 		this._userID = this.internal.userID;
 		this._username = this.internal.username;
 	}

@@ -34,16 +34,46 @@ export class ChatWrapper {
 	private commandQueue: Function[] = [];
 	private commandQueueInterval: NodeJS.Timer;
 
+	/**
+	 * Event called when new user joins the chat.
+	 */
 	onChatUserJoin: Event<(id: number, username: string, data: Chat.UserConnection) => void> = new Event<any>();
+
+	/**
+	 * Event called when user leaves the chat.
+	 */
 	onChatUserLeave: Event<(id: number, username: string, data: Chat.UserConnection) => void> = new Event<any>();
 
+	/**
+	 * Event called when chat is cleared.
+	 */
 	onChatClearMessages: Event<(data: ChatClearMessages) => void> = new Event<any>();
+
+	/**
+	 * Event called when message is deleted.
+	 */
 	onChatDeleteMessage: Event<(data: Chat.DeleteMessage) => void> = new Event<any>();
+
+	/**
+	 * Event called when messages from a specific user are purged.
+	 * 
+	 * Example: when user gets timed out or banned.
+	 */
 	onChatPurgeMessage: Event<(data: Chat.PurgeMessage) => void> = new Event<any>();
+
+	/**
+	 * Event called when user is updated.
+	 */
 	onChatUserUpdate: Event<(data: Chat.UserUpdate) => void> = new Event<any>();
 
+	/**
+	 * Event called when bot receives a new message.
+	 */
 	onChatMessage: Event<(data: ChatMessage) => void> = new Event<any>();
 
+	/**
+	 * Event called the ChatWrapper is ready.
+	 */
 	onBotReady: Event<(client: BeamClient) => void> = new Event<any>();
 
 	constructor(channelID: number, client_id: string, accessToken: string, tokenExpires: number) {
@@ -53,7 +83,9 @@ export class ChatWrapper {
 		this.tokenExpires = tokenExpires;
 	}
 
-	// Add an outgoing command to the command-queue
+	/**
+	 * Add an outgoing command to the command-queue
+	 */
 	private addToQueue(f: Function, pushFront: boolean = false) {
 		if (pushFront) {
 			this.commandQueue.unshift(f);
@@ -62,13 +94,15 @@ export class ChatWrapper {
 		}
 	}
 
-	// Send a global chat message
+	/**
+	 * Send a global chat message
+	 */
 	sendChatMessage(message: string, pushFront: boolean = false) {
 		this.addToQueue(() => {
 			this.socket.call("msg", [message]).catch((reason) => {
 				if (reason === "Please wait before sending more messages." || reason === "Please wait a moment before sending more messages.") {
 					this.sendChatMessage(message, true);
-					console.log("Re-queing message to chat " + reason);
+					console.log("Re-queuing message to chat " + reason);
 				} else {
 					console.log("Error Sending Message to chat for reason: " + reason);
 				}
@@ -80,7 +114,9 @@ export class ChatWrapper {
 		return name.replace("@", "");
 	}
 
-	// Send a message to a particular user
+	/**
+	 * Send a message to a particular user
+	 */
 	sendUserMessage(user: string, message: string, pushFront: boolean = false) {
 		user = ChatWrapper.CleanUsername(user);
 
@@ -88,7 +124,7 @@ export class ChatWrapper {
 			this.socket.call("whisper", [user, message]).catch((reason) => {
 				if (reason === "Please wait before sending more messages." || reason === "Please wait a moment before sending more messages.") {
 					this.sendUserMessage(user, message, true);
-					console.log("Re-queing message to user " + reason);
+					console.log("Re-queuing message to user " + reason);
 				} else {
 					console.log("Error Sending Message to user for reason: " + reason);
 				}
@@ -96,14 +132,18 @@ export class ChatWrapper {
 		}, pushFront);
 	}
 
-	// Remove a particular message from the chat
+	/**
+	 * Remove a particular message from the chat
+	 */
 	removeMessage(id: string) {
 		this.socket.call("deleteMessage", [id]).catch((reason) => {
 			console.log("Delete Message Error: " + reason);
 		});
 	}
 
-	// Start processing the command queue to funnel outgoing messages
+	/**
+	 * Start processing the command queue to funnel outgoing messages
+	 */
 	startCommandQueue() {
 		setTimeout(() => {
 			let hasFunc = false;

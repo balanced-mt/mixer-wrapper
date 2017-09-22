@@ -33,6 +33,11 @@ export class InteractiveScene {
 		this.temporary = (id === undefined);
 	}
 
+	/**
+	 * @Internal
+	 * 
+	 * Removes all buttons and deletes the scene.
+	 */
 	async destroy() {
 		if (this.isValid) {
 			await this.asyncEachControl(async (control) => {
@@ -44,10 +49,18 @@ export class InteractiveScene {
 		}
 	}
 
+	/**
+	 * [Property][Readonly] Returns true is the scene is still valid.
+	 */
 	get isValid() {
 		return this.internal !== undefined;
 	}
 
+	/**
+	 * Adds a control to the scene.
+	 * 
+	 * Returns a promise which will resolve after the control is fully setup
+	 */
 	async addControl(control: InteractiveControl<IControl, IControlData>, position: IGridPlacement[]) {
 		if (this.controlsMap.has(control.id)) {
 			throw new Error(`[InteractiveScene:addControl] Scene '${this.id}' already contains control '${control.id}'!`);
@@ -65,6 +78,11 @@ export class InteractiveScene {
 		}
 	}
 
+	/**
+	 * Moves a control to a new position.
+	 * 
+	 * Returns a promise which will resolve after the control is fully moved
+	 */
 	async moveControl(control: InteractiveControl<IControl, IControlData>, position: IGridPlacement[]) {
 		if (!this.controlsMap.has(control.id)) {
 			throw new Error(`[InteractiveScene:moveControl] Scene '${this.id}' doesn't contain control '${control.id}'!`);
@@ -74,6 +92,11 @@ export class InteractiveScene {
 		await this.addControl(control, position);
 	}
 
+	/**
+	 * Removes a control from the scene.
+	 * 
+	 * Returns a promise which will resolve after the control is fully removed
+	 */
 	async removeControl(control: InteractiveControl<IControl, IControlData>) {
 		if (!this.controlsMap.has(control.id)) {
 			throw new Error(`[InteractiveScene:removeControl] Scene '${this.id}' doesn't contain control '${control.id}'!`);
@@ -93,16 +116,28 @@ export class InteractiveScene {
 		this.controlsMap.delete(control.id);
 	}
 
+	/**
+	 * Return an InteractiveControl for `name`
+	 */
 	getControl(name: string) {
 		let controlData = this.controlsMap.get(name);
 		return controlData !== undefined ? controlData.control : undefined;
 	}
 
+	/**
+	 * Iterates over all controls and executes `callback` for each of them.
+	 */
 	forEachControl(callback: (control: InteractiveControl<IControl, IControlData>, position: IGridPlacement[]) => void) {
 		this.controlsData.forEach((controlData) => {
 			callback(controlData.control, controlData.position);
 		});
 	}
+
+	/**
+	 * Iterates over all controls in async and executes `callback` for each of them.
+	 * 
+	 * Returns a promise which is resolved after all callbacks have been executed for each control.
+	 */
 	async asyncEachControl(callback: (control: InteractiveControl<IControl, IControlData>, position: IGridPlacement[]) => Promise<void>) {
 		for (var i = 0; i < this.controlsData.length; i++) {
 			var controlData = this.controlsData[i];
@@ -113,6 +148,9 @@ export class InteractiveScene {
 
 	private controlsInitialized = false;
 
+	/**
+	 * @Internal
+	 */
 	async beamSceneInit(internal: IScene) {
 		if (this.controlsInitialized) {
 			throw new Error(`[InteractiveScene:beamSceneInit] Scene '${this.id}' is already initialized!`);
@@ -139,6 +177,9 @@ export class InteractiveScene {
 		return true;
 	}
 
+	/**
+	 * @Internal
+	 */
 	async beamSceneDestroy() {
 		this.forEachControl((control, position) => {
 			control.onRemoved(this);

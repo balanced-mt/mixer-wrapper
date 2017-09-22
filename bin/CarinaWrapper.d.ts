@@ -44,6 +44,9 @@ export declare class CarinaWrapper {
      * Event called when audience updates.
      */
     onAudienceUpdateEvent: Event<(data: "family" | "teen" | "18+") => void>;
+    /**
+     * Event called when viewer hosts the channel.
+     */
     onHostEvent: Event<(data: CarinaInterface.ChannelHosted) => void>;
     start(channelID: number): Promise<boolean>;
     stop(): Promise<boolean>;
