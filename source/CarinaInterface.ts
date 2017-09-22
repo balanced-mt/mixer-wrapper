@@ -7,6 +7,7 @@ export interface ChannelUpdate {
 	viewersTotal?: number;
 	viewersCurrent?: number;
 	numFollowers?: number;
+	typeId?: number;
 }
 
 export interface ChannelFollowed {
