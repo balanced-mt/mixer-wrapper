@@ -47,7 +47,7 @@ export class CarinaWrapper {
 	 * Event called when the total number of viewers updates.
 	 */
 	onViewersTotalUpdateEvent: Event<(data: number) => void> = new Event<any>();
-	
+
 	/**
 	 * Event called when the current number of viewers updates.
 	 */
