@@ -11,13 +11,61 @@ export class CarinaWrapper {
 
 	private ca: Carina;
 
+	/**
+	 * Event called when viewer follows the channel.
+	 */
 	onFollowEvent: Event<(data: CarinaInterface.ChannelFollowed) => void> = new Event<any>();
+
+	/**
+	 * Event called when viewer unfollows the channel.
+	 */
 	onUnfollowEvent: Event<(data: CarinaInterface.ChannelFollowed) => void> = new Event<any>();
 
+	/**
+	 * Event called when viewer subscribes the channel.
+	 */
 	onSubscribeEvent: Event<(data: CarinaInterface.ChannelSubscribed) => void> = new Event<any>();
+
+	/**
+	 * Event called when viewer resubscribes the channel.
+	 */
 	onResubscribeEvent: Event<(data: CarinaInterface.ChannelSubscribed) => void> = new Event<any>();
+
+	/**
+	 * Event called when viewer shares the resubscription.
+	 */
 	onSubscribeShareEvent: Event<(data: CarinaInterface.ChannelSubscribed) => void> = new Event<any>();
 
+	/**
+	 * Event called when the channel data updates.
+	 * 
+	 * Contains partial update data!
+	 */
+	onChannelUpdateEvent: Event<(data: CarinaInterface.ChannelUpdate) => void> = new Event<any>();
+
+	/**
+	 * Event called when the total number of viewers updates.
+	 */
+	onViewersTotalUpdateEvent: Event<(data: number) => void> = new Event<any>();
+	
+	/**
+	 * Event called when the current number of viewers updates.
+	 */
+	onViewersCurrentUpdateEvent: Event<(data: number) => void> = new Event<any>();
+
+	/**
+	 * Event called when the total number of followers updates.
+	 */
+	onNumFollowersUpdateEvent: Event<(data: number) => void> = new Event<any>();
+
+	/**
+	 * Event called when audience updates.
+	 */
+	onAudienceUpdateEvent: Event<(data: "family" | "teen" | "18+") => void> = new Event<any>();
+
+	/**
+	 * Event called when viewer hosts the channel.
+	 */
 	onHostEvent: Event<(data: CarinaInterface.ChannelHosted) => void> = new Event<any>();
 
 
@@ -55,6 +103,23 @@ export class CarinaWrapper {
 
 		this.ca.subscribe<CarinaInterface.ChannelHosted>(`channel:${channelID}:hosted`, data => {
 			this.onHostEvent.execute(data);
+		});
+
+		this.ca.subscribe<CarinaInterface.ChannelUpdate>(`channel:${channelID}:update`, data => {
+			this.onChannelUpdateEvent.execute(data);
+
+			if (data.viewersTotal !== undefined) {
+				this.onViewersTotalUpdateEvent.execute(data.viewersTotal);
+			}
+			if (data.viewersCurrent !== undefined) {
+				this.onViewersCurrentUpdateEvent.execute(data.viewersCurrent);
+			}
+			if (data.numFollowers !== undefined) {
+				this.onNumFollowersUpdateEvent.execute(data.numFollowers);
+			}
+			if (data.audience !== undefined) {
+				this.onAudienceUpdateEvent.execute(data.audience);
+			}
 		});
 
 		await Utils.Timeout(100);

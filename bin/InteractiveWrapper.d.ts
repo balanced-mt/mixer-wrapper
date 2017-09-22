@@ -17,9 +17,9 @@ export declare class InteractiveWrapper {
     onUserJoin: Event<(user: InteractiveUser) => void>;
     onUserLeave: Event<(user: InteractiveUser) => void>;
     authToken: string;
-    versionId: number;
+    versionID: number;
     sharecode: string | undefined;
-    constructor(authToken: string, versionId: number, sharecode?: string);
+    constructor(authToken: string, versionID: number, sharecode?: string);
     private tempScenes;
     private tempScenesCount;
     addScene(scene: InteractiveScene): Promise<void>;

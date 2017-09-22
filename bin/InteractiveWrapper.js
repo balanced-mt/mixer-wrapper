@@ -17,7 +17,7 @@ const InteractiveGroup_1 = require("./InteractiveGroup");
 const Utils_1 = require("./common/utils/Utils");
 beam_interactive_node2_1.setWebSocket(ws);
 class InteractiveWrapper {
-    constructor(authToken, versionId, sharecode) {
+    constructor(authToken, versionID, sharecode) {
         this.client = undefined;
         this.defaultScene = new InteractiveScene_1.InteractiveScene(this, "default", "default");
         this.defaultGroup = new InteractiveGroup_1.InteractiveGroup(this, this.defaultScene, "default");
@@ -44,7 +44,7 @@ class InteractiveWrapper {
         this.groupsInitialized = false;
         this.loggingEnabled = false;
         this.authToken = authToken;
-        this.versionId = versionId;
+        this.versionID = versionID;
         this.sharecode = sharecode;
         this.addScene(this.defaultScene);
         this.addGroup(this.defaultGroup);
@@ -282,14 +282,14 @@ class InteractiveWrapper {
             if (this.sharecode !== undefined) {
                 yield this.client.open({
                     authToken: this.authToken,
-                    versionId: this.versionId,
+                    versionId: this.versionID,
                     sharecode: this.sharecode
                 });
             }
             else {
                 yield this.client.open({
                     authToken: this.authToken,
-                    versionId: this.versionId
+                    versionId: this.versionID
                 });
             }
             yield this.client.synchronizeScenes();

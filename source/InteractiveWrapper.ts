@@ -54,12 +54,12 @@ export class InteractiveWrapper {
 	onUserLeave: Event<(user: InteractiveUser) => void> = new Event<any>();
 
 	authToken: string;
-	versionId: number;
+	versionID: number;
 	sharecode: string | undefined;
 
-	constructor(authToken: string, versionId: number, sharecode?: string) {
+	constructor(authToken: string, versionID: number, sharecode?: string) {
 		this.authToken = authToken;
-		this.versionId = versionId;
+		this.versionID = versionID;
 		this.sharecode = sharecode;
 		this.addScene(this.defaultScene);
 		this.addGroup(this.defaultGroup);
@@ -335,13 +335,13 @@ export class InteractiveWrapper {
 		if (this.sharecode !== undefined) {
 			await this.client.open({
 				authToken: this.authToken,
-				versionId: this.versionId,
+				versionId: this.versionID,
 				sharecode: this.sharecode
 			});
 		} else {
 			await this.client.open({
 				authToken: this.authToken,
-				versionId: this.versionId
+				versionId: this.versionID
 			});
 		}
 
