@@ -78,6 +78,11 @@ export class CarinaWrapper {
 	*/
 	onChannelGoOffline: Event<() => void> = new Event<any>();
 
+	/**
+	 * Event called when a channel game changes
+	 */
+	onGameChange: Event<(data: CarinaInterface.GameType) => void> = new Event<any>();
+
 	async start(channelID: number) {
 		this.ca = new Carina({
 			isBot: true
@@ -119,10 +124,14 @@ export class CarinaWrapper {
 
 			if (data.online !== undefined) {
 				if (data.online) {
-					this.onChannelGoLive.execute()
+					this.onChannelGoLive.execute();
 				} else {
-					this.onChannelGoOffline.execute()
+					this.onChannelGoOffline.execute();
 				}
+			}
+
+			if (data.type !== undefined) {
+				this.onGameChange.execute(data.type);
 			}
 
 			if (data.viewersTotal !== undefined) {
