@@ -68,6 +68,15 @@ export class CarinaWrapper {
 	 */
 	onHostEvent: Event<(data: CarinaInterface.ChannelHosted) => void> = new Event<any>();
 
+	/**
+	 * Event called when a channel goes live
+	 */
+	onChannelGoLive: Event<() => void> = new Event<any>();
+
+	/**
+	* Event called when a channel goes offline
+	*/
+	onChannelGoOffline: Event<() => void> = new Event<any>();
 
 	async start(channelID: number) {
 		this.ca = new Carina({
@@ -107,6 +116,14 @@ export class CarinaWrapper {
 
 		this.ca.subscribe<CarinaInterface.ChannelUpdate>(`channel:${channelID}:update`, data => {
 			this.onChannelUpdateEvent.execute(data);
+
+			if (data.online !== undefined) {
+				if (data.online) {
+					this.onChannelGoLive.execute()
+				} else {
+					this.onChannelGoOffline.execute()
+				}
+			}
 
 			if (data.viewersTotal !== undefined) {
 				this.onViewersTotalUpdateEvent.execute(data.viewersTotal);
