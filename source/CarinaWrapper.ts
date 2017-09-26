@@ -131,17 +131,7 @@ export class CarinaWrapper {
 			}
 
 			if (data.type !== undefined) {
-				this.onGameChange.execute({
-					id: data.type.id,
-					name: data.type.name,
-					parent: data.type.parent,
-					description: data.type.description,
-					source: data.type.source,
-					viewersCurrent: data.type.viewersCurrent,
-					coverUrl: data.type.coverUrl,
-					backgroundUrl: data.type.backgroundUrl,
-					online: data.type.online,
-				});
+				this.onGameChange.execute(data.type);
 			}
 
 			if (data.viewersTotal !== undefined) {
