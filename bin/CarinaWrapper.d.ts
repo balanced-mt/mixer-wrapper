@@ -48,6 +48,18 @@ export declare class CarinaWrapper {
      * Event called when viewer hosts the channel.
      */
     onHostEvent: Event<(data: CarinaInterface.ChannelHosted) => void>;
+    /**
+     * Event called when a channel goes live
+     */
+    onChannelGoLive: Event<() => void>;
+    /**
+    * Event called when a channel goes offline
+    */
+    onChannelGoOffline: Event<() => void>;
+    /**
+     * Event called when a channel game changes
+     */
+    onGameChange: Event<(data: CarinaInterface.GameType) => void>;
     start(channelID: number): Promise<boolean>;
     stop(): Promise<boolean>;
 }

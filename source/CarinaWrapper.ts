@@ -141,7 +141,6 @@ export class CarinaWrapper {
 					coverUrl: data.type.coverUrl,
 					backgroundUrl: data.type.backgroundUrl,
 					online: data.type.online,
-					availableAt: data.type.availableAt
 				});
 			}
 

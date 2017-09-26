@@ -8,6 +8,7 @@ export interface ChannelUpdate {
     viewersCurrent?: number;
     numFollowers?: number;
     typeId?: number;
+    type?: GameType;
 }
 export interface ChannelFollowed {
     following?: boolean;
@@ -26,4 +27,15 @@ export interface ChannelHosted {
     hoster?: {
         token?: string;
     };
+}
+export interface GameType {
+    id?: number;
+    name?: string;
+    parent?: string;
+    description?: string;
+    source?: string;
+    viewersCurrent?: number;
+    coverUrl?: string;
+    backgroundUrl?: string;
+    online?: number;
 }
