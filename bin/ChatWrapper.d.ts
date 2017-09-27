@@ -56,6 +56,14 @@ export declare class ChatWrapper {
      */
     onChatMessage: Event<(data: ChatMessage) => void>;
     /**
+     * Called when a chat poll is started
+     */
+    onPollStart: Event<(data: Chat.PollEvent) => void>;
+    /**
+     * Called when a chat poll ends
+     */
+    onPollEnd: Event<(data: Chat.PollEvent) => void>;
+    /**
      * Event called the ChatWrapper is ready.
      */
     onBotReady: Event<(client: BeamClient) => void>;

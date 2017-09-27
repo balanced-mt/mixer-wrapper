@@ -77,6 +77,16 @@ export class ChatWrapper {
 	onChatMessage: Event<(data: ChatMessage) => void> = new Event<any>();
 
 	/**
+	 * Called when a chat poll is started
+	 */
+	onPollStart: Event<(data: Chat.PollEvent) => void> = new Event<any>();
+
+	/**
+	 * Called when a chat poll ends
+	 */
+	onPollEnd: Event<(data: Chat.PollEvent) => void> = new Event<any>();
+
+	/**
 	 * Event called the ChatWrapper is ready.
 	 */
 	onBotReady: Event<(client: BeamClient) => void> = new Event<any>();
@@ -217,6 +227,14 @@ export class ChatWrapper {
 
 		this.socket.on("UserLeave", (data) => {
 			this.onChatUserLeave.execute(data.id, data.username, data);
+		});
+
+		this.socket.on("PollStart", (data: Chat.PollEvent) => {
+			this.onPollStart.execute(data);
+		});
+
+		this.socket.on("PollEnd", (data: Chat.PollEvent) => {
+			this.onPollEnd.execute(data);
 		});
 
 		this.socket.on("ClearMessages", (data: ChatClearMessages) => {
