@@ -64,7 +64,7 @@ export class ChatWrapper {
 	/**
 	 * Event called when a user is timed out from chat
 	 */
-	onChatTimeout: Event<(data: Chat.UserTimeout) => void> = new Event<any>();
+	onChatUserTimeout: Event<(data: Chat.UserTimeout) => void> = new Event<any>();
 
 	/**
 	 * Event called when user is updated.
@@ -232,7 +232,7 @@ export class ChatWrapper {
 		});
 
 		this.socket.on("UserTimeout", (data) => {
-			this.onChatTimeout.execute(data);
+			this.onChatUserTimeout.execute(data);
 		})
 
 		this.socket.on("UserUpdate", (data) => {
