@@ -44,6 +44,10 @@ export declare class ChatWrapper {
      */
     onChatPurgeMessage: Event<(data: Chat.PurgeMessage) => void>;
     /**
+     * Event called when a user is timed out from chat
+     */
+    onChatUserTimeout: Event<(data: Chat.UserTimeout) => void>;
+    /**
      * Event called when user is updated.
      */
     onChatUserUpdate: Event<(data: Chat.UserUpdate) => void>;

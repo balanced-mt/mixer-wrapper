@@ -62,6 +62,11 @@ export class ChatWrapper {
 	onChatPurgeMessage: Event<(data: Chat.PurgeMessage) => void> = new Event<any>();
 
 	/**
+	 * Event called when a user is timed out from chat
+	 */
+	onChatUserTimeout: Event<(data: Chat.UserTimeout) => void> = new Event<any>();
+
+	/**
 	 * Event called when user is updated.
 	 */
 	onChatUserUpdate: Event<(data: Chat.UserUpdate) => void> = new Event<any>();
@@ -225,6 +230,10 @@ export class ChatWrapper {
 		this.socket.on("PurgeMessage", (data) => {
 			this.onChatPurgeMessage.execute(data);
 		});
+
+		this.socket.on("UserTimeout", (data) => {
+			this.onChatUserTimeout.execute(data);
+		})
 
 		this.socket.on("UserUpdate", (data) => {
 			this.onChatUserUpdate.execute(data);
