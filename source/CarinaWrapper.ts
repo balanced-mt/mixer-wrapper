@@ -69,6 +69,11 @@ export class CarinaWrapper {
 	onHostEvent: Event<(data: CarinaInterface.ChannelHosted) => void> = new Event<any>();
 
 	/**
+	 * Event called when a channel is featured
+	 */
+	onChannelFeatured: Event<(data: CarinaInterface.ChannelFeatured) => void> = new Event<any>();
+
+	/**
 	 * Event called when a channel goes live
 	 */
 	onChannelGoLive: Event<() => void> = new Event<any>();
@@ -128,6 +133,13 @@ export class CarinaWrapper {
 				} else {
 					this.onChannelGoOffline.execute();
 				}
+			}
+
+			if (data.featured !== undefined) {
+				this.onChannelFeatured.execute({
+					featured: data.featured,
+					featureLevel: data.featureLevel
+				});
 			}
 
 			if (data.type !== undefined) {
