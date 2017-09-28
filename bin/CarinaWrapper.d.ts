@@ -60,6 +60,10 @@ export declare class CarinaWrapper {
      * Event called when a channel game changes
      */
     onGameChange: Event<(data: CarinaInterface.GameType) => void>;
+    /**
+     * Event called when a channel is featured
+     */
+    onChannelFeatured: Event<(data: CarinaInterface.ChannelFeatured) => void>;
     start(channelID: number): Promise<boolean>;
     stop(): Promise<boolean>;
 }

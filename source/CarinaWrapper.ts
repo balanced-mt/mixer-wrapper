@@ -83,6 +83,11 @@ export class CarinaWrapper {
 	 */
 	onGameChange: Event<(data: CarinaInterface.GameType) => void> = new Event<any>();
 
+	/**
+	 * Event called when a channel is featured
+	 */
+	onChannelFeatured: Event<(data: CarinaInterface.ChannelFeatured) => void> = new Event<any>();
+
 	async start(channelID: number) {
 		this.ca = new Carina({
 			isBot: true
@@ -128,6 +133,13 @@ export class CarinaWrapper {
 				} else {
 					this.onChannelGoOffline.execute();
 				}
+			}
+
+			if(data.featured !== undefined) {
+				this.onChannelFeatured.execute({
+					featured: data.featured,
+					featureLevel: data.featureLevel
+				});
 			}
 
 			if (data.type !== undefined) {

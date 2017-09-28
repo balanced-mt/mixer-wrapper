@@ -39,3 +39,7 @@ export interface GameType {
     backgroundUrl?: string;
     online?: number;
 }
+export interface ChannelFeatured {
+    featured?: boolean;
+    featureLevel?: number;
+}
