@@ -32,6 +32,11 @@ export interface ChannelHosted {
 	};
 }
 
+export interface ChannelFeatured {
+	featured?: boolean;
+	featureLevel?: number;
+}
+
 export interface GameType {
 	id?: number;
 	name?: string;

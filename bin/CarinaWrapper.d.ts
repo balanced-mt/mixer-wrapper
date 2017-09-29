@@ -49,6 +49,10 @@ export declare class CarinaWrapper {
      */
     onHostEvent: Event<(data: CarinaInterface.ChannelHosted) => void>;
     /**
+     * Event called when a channel is featured
+     */
+    onChannelFeatured: Event<(data: CarinaInterface.ChannelFeatured) => void>;
+    /**
      * Event called when a channel goes live
      */
     onChannelGoLive: Event<() => void>;
