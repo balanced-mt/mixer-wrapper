@@ -1,3 +1,6 @@
+
+require("./common/utils/Init");
+
 export * from "./InteractiveButton";
 export * from "./InteractiveControl";
 export * from "./InteractiveGroup";
@@ -8,4 +11,4 @@ export * from "./CarinaWrapper";
 export * from "./ChatWrapper";
 export * from "./ClientWrapper";
 
-export * from "../beam-interactive-node2";
+export * from "beam-interactive-node2";

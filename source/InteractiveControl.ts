@@ -2,7 +2,7 @@ import {
 	IControlData,
 	IControl,
 	IGridPlacement
-} from "../beam-interactive-node2";
+} from "beam-interactive-node2";
 
 import { InteractiveScene } from "./InteractiveScene";
 import { InteractiveWrapper } from "./InteractiveWrapper";
@@ -13,7 +13,14 @@ export enum ControlVariableFlags {
 	SparkCost = 1 << 2,
 	Cooldown = 1 << 3,
 	Disabled = 1 << 4,
-	Progress = 1 << 5
+	Progress = 1 << 5,
+	Tooltip = 1 << 6,
+	Placeholder = 1 << 7,
+	BackgroundColor = 1 << 8,
+	TextColor = 1 << 9,
+	FocusColor = 1 << 10,
+	AccentColor = 1 << 11,
+	BorderColor = 1 << 12,
 }
 
 export abstract class InteractiveControl<T extends IControl, K extends IControlData> {
@@ -168,6 +175,8 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 
 		if (this.activeControls.size <= 0) {
 			this.dirtyFlags = 0;
+		} else if (this.activeControls.size > 1) {
+			throw new Error("NYI");
 		} else if (!this.updateLock && this.dirtyFlags !== 0 && (this.lastUpdate === undefined || this.lastUpdate + 50 < time)) {
 			let dirtyBits = this.dirtyFlags;
 			this.dirtyFlags = 0;
@@ -190,11 +199,11 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 						clearTimeout(timeout);
 						this.markDirty(dirtyBits);
 						this.updateLock = false;
-						console.error("[InteractiveControl] Handling reject", error);
+						console.error("reject", error);
 					});
 				});
 			} else {
-				throw new Error("[InteractiveControl] Dirty but no updates!");
+				throw new Error("Dirty but no updates!");
 			}
 		}
 	}

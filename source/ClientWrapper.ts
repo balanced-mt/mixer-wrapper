@@ -1,12 +1,15 @@
-
-import BeamClient = require("beam-client-node");
+import {
+	Client as MixerClient,
+	DefaultRequestRunner,
+	OAuthProvider
+} from "beam-client-node";
 
 import { Event } from "./common/utils/Event";
 
 
 export class ClientWrapper {
 	// Beam-Client Socket
-	private client: BeamClient;
+	private client: MixerClient;
 
 	private channelID: number;
 	private client_id: string;
@@ -18,16 +21,16 @@ export class ClientWrapper {
 		this.client_id = client_id;
 		this.accessToken = accessToken;
 		this.tokenExpires = tokenExpires;
-		this.client = new BeamClient();
+		this.client = new MixerClient(new DefaultRequestRunner());
 
 		console.log("Client: Setting up OAUTH");
-		this.client.use("oauth", {
+		this.client.use(new OAuthProvider(this.client, {
 			clientId: this.client_id,
 			tokens: {
 				access: this.accessToken,
-				expires: this.tokenExpires
+				expires: <any>this.tokenExpires
 			},
-		});
+		}));
 	}
 
 	/**
@@ -40,7 +43,7 @@ export class ClientWrapper {
 		try {
 			while (userIDs.length > 0) {
 				let currentIDs = userIDs.splice(0, 100);
-				let response = await this.client.request('GET', `channels/${this.channelID}/users/mod`, {
+				let response = await this.client.request<any>('GET', `channels/${this.channelID}/users/mod`, {
 					qs: {
 						where: "id:in:" + currentIDs.join(";"),
 						limit: 100
@@ -81,7 +84,7 @@ export class ClientWrapper {
 		try {
 			while (userIDs.length > 0) {
 				let currentIDs = userIDs.splice(0, 100);
-				let response = await this.client.request('GET', `channels/${this.channelID}/users/subscriber`, {
+				let response = await this.client.request<any>('GET', `channels/${this.channelID}/users/subscriber`, {
 					qs: {
 						where: "id:in:" + currentIDs.join(";"),
 						limit: 100
@@ -122,7 +125,7 @@ export class ClientWrapper {
 		try {
 			while (userIDs.length > 0) {
 				let currentIDs = userIDs.splice(0, 100);
-				let response = await this.client.request('GET', `/channels/${this.channelID}/follow`, {
+				let response = await this.client.request<any>('GET', `/channels/${this.channelID}/follow`, {
 					qs: {
 						where: "id:in:" + currentIDs.join(";"),
 						fields: "id,followed",

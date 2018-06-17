@@ -1,6 +1,6 @@
 import {
 	IParticipant
-} from "../beam-interactive-node2";
+} from "beam-interactive-node2";
 
 import { Event } from "./common/utils/Event";
 
@@ -9,19 +9,22 @@ import { InteractiveGroup } from "./InteractiveGroup";
 
 export class InteractiveUser {
 	public readonly wrapper: InteractiveWrapper;
-	protected readonly internal: IParticipant;
+	protected readonly internal: IParticipant & { userID: number; username: string; };
 
 	private data = new Map<string, { [K: string]: any }>();
 
 	public readonly onLeaveEvent: Event<() => void> = new Event<any>();
 
-	constructor(wrapper: InteractiveWrapper, participant: IParticipant) {
+	constructor(wrapper: InteractiveWrapper) {
 		this.wrapper = wrapper;
-		this.setParticipant(participant, true);
 	}
 
-	setParticipant(participant: IParticipant, update?: boolean) {
+	async setParticipant(participant: IParticipant, update?: boolean) {
 		(this as any).internal = participant;
+
+		if (this.internal.userID === undefined || this.internal.username === undefined) {
+			throw new Error("[InteractiveUser::setupInternal] userID or username is undefined");
+		}
 
 		this.setupInternal();
 
@@ -125,9 +128,7 @@ export class InteractiveUser {
 		}
 	}
 
-	/**********************************************************************/
-
-	private setupInternal() {
+	setupInternal() {
 		this._userID = this.internal.userID;
 		this._username = this.internal.username;
 	}

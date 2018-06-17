@@ -4,7 +4,7 @@ import {
 	IControlData,
 	IGridPlacement,
 	delay
-} from "../beam-interactive-node2";
+} from "beam-interactive-node2";
 
 import { InteractiveControl } from "./InteractiveControl";
 import { InteractiveWrapper } from "./InteractiveWrapper";
@@ -16,10 +16,10 @@ type ControlData = {
 
 export class InteractiveScene {
 
-	public readonly wrapper: InteractiveWrapper | undefined;
-	private internal: IScene;
+	public readonly wrapper: InteractiveWrapper;
+	private internal?: IScene;
 	public readonly type: string;
-	public readonly id: string;
+	public readonly id?: string;
 	public readonly temporary: boolean;
 
 
@@ -46,6 +46,22 @@ export class InteractiveScene {
 			await this.internal.deleteAllControls();
 			this.controlsInitialized = false;
 			this.internal = undefined;
+		}
+	}
+
+	/**
+	 * @Internal
+	 * 
+	 * Removes all buttons and deletes the scene.
+	 */
+	async destroyOnStop() {
+		if (this.isValid && this.internal !== undefined) {
+			this.internal = undefined;
+			await this.asyncEachControl(async (control) => {
+				control.onRemoved(this);
+			});
+			this.controlsInitialized = false;
+			(this as any).id = undefined;
 		}
 	}
 

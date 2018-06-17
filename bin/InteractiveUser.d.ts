@@ -1,14 +1,17 @@
-import { IParticipant } from "../beam-interactive-node2";
+import { IParticipant } from "beam-interactive-node2";
 import { Event } from "./common/utils/Event";
 import { InteractiveWrapper } from "./InteractiveWrapper";
 import { InteractiveGroup } from "./InteractiveGroup";
 export declare class InteractiveUser {
     readonly wrapper: InteractiveWrapper;
-    protected readonly internal: IParticipant;
+    protected readonly internal: IParticipant & {
+        userID: number;
+        username: string;
+    };
     private data;
     readonly onLeaveEvent: Event<() => void>;
-    constructor(wrapper: InteractiveWrapper, participant: IParticipant);
-    setParticipant(participant: IParticipant, update?: boolean): void;
+    constructor(wrapper: InteractiveWrapper);
+    setParticipant(participant: IParticipant, update?: boolean): Promise<void>;
     removeParticipant(sessionID: string): boolean;
     /**
      * [Property][Readonly] Returns true is the user is still connected
@@ -43,7 +46,6 @@ export declare class InteractiveUser {
     protected _username: string;
     protected _group: InteractiveGroup;
     readonly group: InteractiveGroup;
-    private setGroup(group);
-    /**********************************************************************/
-    private setupInternal();
+    private setGroup;
+    setupInternal(): void;
 }

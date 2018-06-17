@@ -4,7 +4,7 @@ import {
 	IScene,
 	setWebSocket,
 	IGroup,
-} from "../beam-interactive-node2";
+} from "beam-interactive-node2";
 
 import * as ws from "ws";
 import { Event } from "./common/utils/Event";
@@ -12,6 +12,7 @@ import { InteractiveScene } from "./InteractiveScene";
 import { InteractiveUser } from "./InteractiveUser";
 import { InteractiveGroup } from "./InteractiveGroup";
 import { Utils } from "./common/utils/Utils";
+import { ISocketOptions } from "beam-interactive-node2/lib/wire/Socket";
 
 setWebSocket(ws);
 
@@ -48,10 +49,14 @@ export class InteractiveWrapper {
 	private userMap: Map<string, InteractiveUser> = new Map();
 	private userIDMap: Map<number, InteractiveUser> = new Map();
 
-	onInit: Event<() => void> = new Event<any>();
-	onReady: Event<() => void> = new Event<any>();
-	onUserJoin: Event<(user: InteractiveUser) => void> = new Event<any>();
-	onUserLeave: Event<(user: InteractiveUser) => void> = new Event<any>();
+	public readonly onInit: Event<() => void> = new Event<any>();
+	public readonly onReady: Event<() => void> = new Event<any>();
+	public readonly onUserJoin: Event<(user: InteractiveUser) => void> = new Event<any>();
+	public readonly onUserLeave: Event<(user: InteractiveUser) => void> = new Event<any>();
+
+	public readonly onStop: Event<() => void> = new Event<any>();
+
+	private interval: NodeJS.Timer = undefined;
 
 	authToken: string;
 	versionID: number;
@@ -92,17 +97,16 @@ export class InteractiveWrapper {
 
 	async removeScene(scene: InteractiveScene) {
 		if (scene.temporary === true) {
-
-			this.sceneMap.delete(scene.id);
-
 			let internal = (scene as any).internal;
-			await scene.destroy();
-			this.tempScenes.unshift(internal);
+
+			if (internal !== undefined) {
+				this.sceneMap.delete(scene.id);
+
+				await scene.destroy();
+				this.tempScenes.unshift(internal);
+			}
 		} else {
-			this.sceneMap.delete(scene.id);
-			let internal: IScene = (scene as any).internal;
-			await scene.destroy();
-			await this.deleteScene(internal.sceneID, "default");
+			throw new Error("NYI");
 		}
 	}
 
@@ -142,16 +146,15 @@ export class InteractiveWrapper {
 
 	async removeGroup(group: InteractiveGroup) {
 		if (group.temporary === true) {
-			this.groupMap.delete(group.id);
-
 			let internal = (group as any).internal;
-			await group.destroy();
-			this.tempGroups.unshift(internal);
+			if (internal !== undefined) {
+				this.groupMap.delete(group.id);
+
+				await group.destroy();
+				this.tempGroups.unshift(internal);
+			}
 		} else {
-			this.groupMap.delete(group.id);
-			let internal: IGroup = (group as any).internal;
-			await group.destroy();
-			await this.deleteGroup(internal.groupID, "default");
+			throw new Error("NYI");
 		}
 	}
 
@@ -169,11 +172,6 @@ export class InteractiveWrapper {
 		return this.groupMap.get(name);
 	}
 
-	/*async removeGroup(group: InteractiveGroup) {
-		await this.deleteGroup(group.id, "default");
-		this.groupMap.delete(group.id);
-	}*/
-
 	async moveUsers(users: InteractiveUser[], group: InteractiveGroup, currentTry: number = 0) {
 		return this.client.execute<IUpdateParticipants>(
 			"updateParticipants",
@@ -183,11 +181,12 @@ export class InteractiveWrapper {
 					this.userIDMap.get(user.userID).setParticipant(user, true);
 				});
 			}).catch(async (err) => {
-				//if (currentTry < 3) {
-				//	await this.moveUsers(users, group, currentTry + 1);
-				//} else {
-				throw err;
-				//}
+				if (this.client !== undefined && currentTry < 3) {
+					await Utils.Timeout(1000 * (currentTry + 1));
+					await this.moveUsers(users, group, currentTry + 1);
+				} else {
+					throw err;
+				}
 			});
 	}
 
@@ -203,7 +202,9 @@ export class InteractiveWrapper {
 	private clockDelta = 0;
 	get now() {
 		if (this.client && this.client.state) {
-			this.clockDelta = (this.client.state as any).clockDelta;
+			if ((this.client.state as any).clockDelta !== 0) {
+				this.clockDelta = (this.client.state as any).clockDelta;
+			}
 			return this.client.state.synchronizeLocalTime().getTime();
 		} else if (this.clockDelta !== 0) {
 			return new Date(Date.now() - this.clockDelta).getTime();
@@ -217,7 +218,7 @@ export class InteractiveWrapper {
 	/**********************************************************************/
 	private scenesInitialized = false;
 	private groupsInitialized = false;
-	async beamInit() {
+	private async beamInit() {
 
 		this.scenesInitialized = true;
 		for (let [key, scene] of this.sceneMap) {
@@ -227,7 +228,7 @@ export class InteractiveWrapper {
 			} else {
 				beamScene = await this.createScene(scene.id);
 			}
-			scene.beamSceneInit(beamScene);
+			await scene.beamSceneInit(beamScene);
 		}
 
 		this.groupsInitialized = true;
@@ -279,75 +280,101 @@ export class InteractiveWrapper {
 			this.client.on("message", InteractiveWrapper.logMessage);
 			this.client.on("send", InteractiveWrapper.logSend);
 		}
-
-		this.client.on("error", (err: any) => {
+		
+		this.client.on('error', (err: any) => {
 			console.error("[InteractiveWrapper] error ", err);
 		});
 
+		let delayedJoinEvents: IParticipant[] = [];
+		let isReady = false;
 
-		this.client.state.on("participantJoin", (participant: IParticipant) => {
+		this.client.state.on('participantJoin', (participant: IParticipant) => {
 
 			let user = this.userIDMap.get(participant.userID);
 			if (user === undefined) {
-				user = new InteractiveUser(this, participant);
+				user = new InteractiveUser(this);
+
 				this.userIDMap.set(participant.userID, user);
 				this.userMap.set(participant.username.toLowerCase(), user);
+
+				user.setParticipant(participant, true);
+				this.sessionMap.set(participant.sessionID, user);
 			} else {
 				user.setParticipant(participant);
+				this.sessionMap.set(participant.sessionID, user);
 			}
-			this.sessionMap.set(participant.sessionID, user);
 
-			console.log(`[InteractiveWrapper] ${participant.username}(${participant.sessionID}) Joined`);
+			// console.log(`[InteractiveWrapper] ${participant.username}(${participant.sessionID}) Joined`);
 
-			// if we are not ready delay!
-			this.onUserJoin.execute(user);
+			if (isReady) {
+				this.onUserJoin.execute(user);
+			} else {
+				// if we are not ready delay!
+				delayedJoinEvents.push(user);
+			}
 		});
 
-		this.client.state.on("participantLeave", (sessionID: string) => {
+		this.client.state.on('participantLeave', (sessionID: string) => {
 			let user = this.sessionMap.get(sessionID);
 			if (user !== undefined) {
 				this.sessionMap.delete(sessionID);
 				user.removeParticipant(sessionID);
-				console.log(`[InteractiveWrapper] ${sessionID} Left`);
+				// console.log(`[InteractiveWrapper] ${sessionID} Left`);
 
-				// if we are not ready do what?
-				this.onUserLeave.execute(user);
+				if (isReady) {
+					this.onUserLeave.execute(user);
+				} else {
+					// if we are not ready remove
+					const index = delayedJoinEvents.indexOf(user);
+					delayedJoinEvents.splice(index, 1);
+				}
 			}
 		});
 
 		// Log when we're connected to interactive
-		this.client.on("open", () => {
+		this.client.on('open', () => {
 			(this.client as any).socket.options.autoReconnect = false;
-			console.log("Connected to interactive");
+			console.log('Connected to interactive');
 		});
 
 		this.client.state.on("ready", async (ready) => {
 			if (ready) {
-				console.log("Ready!");
+				console.log('Ready!');
 				await this.beamInit();
 				this.onInit.execute();
 				this.onReady.execute();
+				isReady = true;
+				delayedJoinEvents.forEach((participant) => {
+					let user = this.userIDMap.get(participant.userID);
+					this.onUserJoin.execute(user);
+				})
 			} else {
-				console.log("Not ready?");
+				console.log('Not ready?');
 			}
 		});
-
+		
 		if (this.sharecode !== undefined) {
-			await this.client.open({
+			await this.client.open(<any><ISocketOptions>{
 				authToken: this.authToken,
 				versionId: this.versionID,
-				sharecode: this.sharecode
+				sharecode: this.sharecode,
+				autoReconnect: false
 			});
 		} else {
-			await this.client.open({
+			await this.client.open(<any><ISocketOptions>{
 				authToken: this.authToken,
-				versionId: this.versionID
+				versionId: this.versionID,
+				autoReconnect: false
 			});
 		}
 
 		await this.client.synchronizeScenes();
 		await this.client.synchronizeGroups();
 		await this.client.ready(true);
+
+		this.interval = setInterval(() => {
+			this.update();
+		}, 10);
 	}
 
 	stop() {

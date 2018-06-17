@@ -1,4 +1,4 @@
-import { IControlData, IControl, IGridPlacement } from "../beam-interactive-node2";
+import { IControlData, IControl, IGridPlacement } from "beam-interactive-node2";
 import { InteractiveScene } from "./InteractiveScene";
 import { InteractiveWrapper } from "./InteractiveWrapper";
 import { Event } from "./common/utils/Event";
@@ -8,6 +8,13 @@ export declare enum ControlVariableFlags {
     Cooldown = 8,
     Disabled = 16,
     Progress = 32,
+    Tooltip = 64,
+    Placeholder = 128,
+    BackgroundColor = 256,
+    TextColor = 512,
+    FocusColor = 1024,
+    AccentColor = 2048,
+    BorderColor = 4096
 }
 export declare abstract class InteractiveControl<T extends IControl, K extends IControlData> {
     /**

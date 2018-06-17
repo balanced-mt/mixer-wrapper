@@ -1,5 +1,5 @@
 
-import { Carina } from "../carina/dist/commonjs";
+import { Carina } from "carina";
 import * as CarinaInterface from "./CarinaInterface";
 import { Event } from "./common/utils/Event";
 import { Utils } from "./common/utils/Utils";

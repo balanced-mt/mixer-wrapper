@@ -1,9 +1,18 @@
-
-import BeamClient = require("beam-client-node");
-import BeamSocket = require("beam-client-node/lib/ws");
-
-// Internal Objects for Beam Module
-import * as Chat from "beam-client-node/defs/chat";
+import {
+	Client as MixerClient,
+	Socket as MixerSocket,
+	DefaultRequestRunner,
+	OAuthProvider,
+	ChatService,
+	IChatMessage,
+	IDeleteMessage,
+	IPurgeMessage,
+	IUserUpdate,
+	IUserConnection,
+	IPollEvent,
+	IUserTimeout
+} from "beam-client-node";
+import * as ws from "ws";
 
 import { Event } from "./common/utils/Event";
 
@@ -16,14 +25,11 @@ export interface ChatClearMessages {
 	};
 }
 
-export interface ChatMessage extends Chat.ChatMessage {
-	text: string
-}
 
 export class ChatWrapper {
 	// Beam-Client Socket
-	private client: BeamClient;
-	private socket: BeamSocket;
+	private client?: MixerClient;
+	private socket?: MixerSocket;
 
 	private channelID: number;
 	private client_id: string;
@@ -37,59 +43,59 @@ export class ChatWrapper {
 	/**
 	 * Event called when new user joins the chat.
 	 */
-	onChatUserJoin: Event<(id: number, username: string, data: Chat.UserConnection) => void> = new Event<any>();
+	onChatUserJoin: Event<(id: number, username: string, data: IUserConnection) => void> = new Event<any>();
 
 	/**
 	 * Event called when user leaves the chat.
 	 */
-	onChatUserLeave: Event<(id: number, username: string, data: Chat.UserConnection) => void> = new Event<any>();
+	onChatUserLeave: Event<(id: number, username: string, data: IUserConnection) => void> = new Event<any>();
 
 	/**
 	 * Event called when chat is cleared.
 	 */
-	onChatClearMessages: Event<(data: ChatClearMessages) => void> = new Event<any>();
+	onChatClearMessages: Event<() => void> = new Event<any>();
 
 	/**
 	 * Event called when message is deleted.
 	 */
-	onChatDeleteMessage: Event<(data: Chat.DeleteMessage) => void> = new Event<any>();
+	onChatDeleteMessage: Event<(data: IDeleteMessage) => void> = new Event<any>();
 
 	/**
 	 * Event called when messages from a specific user are purged.
 	 * 
 	 * Example: when user gets timed out or banned.
 	 */
-	onChatPurgeMessage: Event<(data: Chat.PurgeMessage) => void> = new Event<any>();
+	onChatPurgeMessage: Event<(data: IPurgeMessage) => void> = new Event<any>();
 
 	/**
 	 * Event called when a user is timed out from chat
 	 */
-	onChatUserTimeout: Event<(data: Chat.UserTimeout) => void> = new Event<any>();
+	onChatUserTimeout: Event<(data: IUserTimeout) => void> = new Event<any>();
 
 	/**
 	 * Event called when user is updated.
 	 */
-	onChatUserUpdate: Event<(data: Chat.UserUpdate) => void> = new Event<any>();
+	onChatUserUpdate: Event<(data: IUserUpdate) => void> = new Event<any>();
 
 	/**
 	 * Event called when bot receives a new message.
 	 */
-	onChatMessage: Event<(data: ChatMessage) => void> = new Event<any>();
+	onChatMessage: Event<(data: IChatMessage & { text: string }) => void> = new Event<any>();
 
 	/**
 	 * Called when a chat poll is started
 	 */
-	onPollStart: Event<(data: Chat.PollEvent) => void> = new Event<any>();
+	onPollStart: Event<(data: IPollEvent) => void> = new Event<any>();
 
 	/**
 	 * Called when a chat poll ends
 	 */
-	onPollEnd: Event<(data: Chat.PollEvent) => void> = new Event<any>();
+	onPollEnd: Event<(data: IPollEvent) => void> = new Event<any>();
 
 	/**
 	 * Event called the ChatWrapper is ready.
 	 */
-	onBotReady: Event<(client: BeamClient) => void> = new Event<any>();
+	onBotReady: Event<(client: MixerClient) => void> = new Event<any>();
 
 	constructor(channelID: number, client_id: string, accessToken: string, tokenExpires: number) {
 		this.channelID = channelID;
@@ -180,34 +186,40 @@ export class ChatWrapper {
 	}
 
 	async start() {
-		this.client = new BeamClient();
+		this.client = new MixerClient(new DefaultRequestRunner());
 
 		// With OAuth we don"t need to login, the OAuth Provider will attach
 		// the required information to all of our requests after this call.
 		console.log("Bot: Setting up OAUTH");
-		this.client.use("oauth", {
+		this.client.use(new OAuthProvider(this.client, {
 			clientId: this.client_id,
 			tokens: {
 				access: this.accessToken,
-				expires: this.tokenExpires
-			},
-		});
+				expires: <any>this.tokenExpires
+			}
+		}));
 
 		console.log("Bot: Connecting to Beam");
 
 		// Get"s the user we have access to with the token
-		let currentUser = await this.client.request("GET", `users/current`, {});
+		let currentUser = await this.client.request<any>("GET", `users/current`, {});
 		let userInfo = currentUser.body;
-		let joinResponse = await this.client.chat.join(this.channelID);
+		let chat = new ChatService(this.client);
+		let joinResponse = await chat.join(this.channelID);
 
 		const body = joinResponse.body;
 		console.log("Bot: Creating Chat Socket");
 
 		// Chat connection
-		this.socket = new BeamSocket(body.endpoints).boot();
+		this.socket = new MixerSocket(<any>ws, body.endpoints, {
+			clientId: this.client_id,
+			pingInterval: 15 * 1000, //default
+			pingTimeout: 5 * 1000, //default
+			callTimeout: 20 * 1000 //default
+		}).boot();
 
 		// React to our !pong command
-		this.socket.on("ChatMessage", (data: ChatMessage) => {
+		this.socket.on("ChatMessage", (data: IChatMessage & { text: string }) => {
 			let text = "";
 
 			for (let i = 0; i < data.message.message.length; i++) {
@@ -229,16 +241,16 @@ export class ChatWrapper {
 			this.onChatUserLeave.execute(data.id, data.username, data);
 		});
 
-		this.socket.on("PollStart", (data: Chat.PollEvent) => {
+		this.socket.on("PollStart", (data) => {
 			this.onPollStart.execute(data);
 		});
 
-		this.socket.on("PollEnd", (data: Chat.PollEvent) => {
+		this.socket.on("PollEnd", (data) => {
 			this.onPollEnd.execute(data);
 		});
 
-		this.socket.on("ClearMessages", (data: ChatClearMessages) => {
-			this.onChatClearMessages.execute(data);
+		this.socket.on("ClearMessages", () => {
+			this.onChatClearMessages.execute();
 		});
 
 		this.socket.on("DeleteMessage", (data) => {
@@ -260,10 +272,19 @@ export class ChatWrapper {
 
 
 		// Handle errors
-		this.socket.on("error", error => {
-			console.error("Socket error", error);
-		});
-		await this.socket.auth(this.channelID, userInfo.id, body.authkey);
+		try {
+			await
+				Promise.race(
+					[
+						new Promise<void>((resolve, reject) => {
+							(<MixerSocket>this.socket).on("error", err => { reject(err); });
+						}),
+						this.socket.auth(this.channelID, userInfo.id, body.authkey)
+					]
+				);
+		} catch (err) {
+			throw err;
+		}
 		console.log("Login successful");
 
 		this.onBotReady.execute(this.client);

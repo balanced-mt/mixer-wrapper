@@ -5,7 +5,7 @@ import {
 	IInputEvent,
 	IParticipant,
 	IButtonInput
-} from "../beam-interactive-node2";
+} from "beam-interactive-node2";
 
 import { InteractiveWrapper } from "./InteractiveWrapper";
 import { InteractiveControl, ControlVariableFlags } from "./InteractiveControl";
@@ -17,11 +17,19 @@ import { InteractiveUser } from "./InteractiveUser";
 export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 
 	private _text: string;
+	private _tooltip: string;
 	private _sparkCost: number | undefined = undefined;
 	protected _cooldown: number | undefined = undefined;
 	protected _progress: number | undefined = undefined;
 	private _disabled: boolean = false;
 	private _forceCooldown: boolean = true;
+
+	// style
+	private _backgroundColor: string = "#222222";
+	private _textColor: string = "#FFFFFF";
+	private _focusColor: string = "#444444";
+	private _accentColor: string = "#AAAAAA";
+	private _borderColor: string = "#666666";
 
 	constructor(wrapper: InteractiveWrapper | undefined, id: string, text: string) {
 		super(wrapper, id);
@@ -41,6 +49,103 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		if (this._text !== text) {
 			this._text = text;
 			this.markDirty(ControlVariableFlags.Text);
+		}
+	}
+
+	/**
+	 * [Property] Tooltip text
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
+	get tooltip() {
+		return this._tooltip;
+	}
+
+	set tooltip(tooltip: string) {
+		if (this._tooltip !== tooltip) {
+			// this._tooltip = tooltip;
+			// this.markDirty(ControlVariableFlags.Tooltip);
+		}
+	}
+
+
+	/**
+	 * [Property] Background color
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
+	get backgroundColor() {
+		return this._backgroundColor;
+	}
+
+	set backgroundColor(color: string) {
+		if (this._backgroundColor !== color) {
+			this._backgroundColor = color;
+			this.markDirty(ControlVariableFlags.BackgroundColor);
+		}
+	}
+
+	/**
+	 * [Property] Text color
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
+	get textColor() {
+		return this._textColor;
+	}
+
+	set textColor(color: string) {
+		if (this._textColor !== color) {
+			this._textColor = color;
+			this.markDirty(ControlVariableFlags.TextColor);
+		}
+	}
+
+	/**
+	 * [Property] Focus/hover color
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
+	get focusColor() {
+		return this._focusColor;
+	}
+
+	set focusColor(color: string) {
+		if (this._focusColor !== color) {
+			this._focusColor = color;
+			this.markDirty(ControlVariableFlags.FocusColor);
+		}
+	}
+
+	/**
+	 * [Property] Accent color (progressbar)
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
+	get accentColor() {
+		return this._accentColor;
+	}
+
+	set accentColor(color: string) {
+		if (this._accentColor !== color) {
+			this._accentColor = color;
+			this.markDirty(ControlVariableFlags.AccentColor);
+		}
+	}
+
+	/**
+	 * [Property] Border color
+	 * 
+	 * This variable automatically propagates to the server.
+	 */
+	get borderColor() {
+		return this._borderColor;
+	}
+
+	set borderColor(color: string) {
+		if (this._borderColor !== color) {
+			this._borderColor = color;
+			this.markDirty(ControlVariableFlags.BorderColor);
 		}
 	}
 
@@ -177,7 +282,7 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 
 	private _lastClick: number = -1;
 	protected onMouseDown(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
-		if (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1) {
+		if (this._disabled || (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1)) {
 			return;
 		}
 		this._lastClick = participant.userID;
@@ -185,7 +290,7 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 	}
 
 	protected onMouseUp(event: IInputEvent<IButtonInput>, participant: InteractiveUser, beamControl: IButton) {
-		if (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1 && this._lastClick !== participant.userID) {
+		if (this._disabled || (this._forceCooldown && (this._cooldown - this.wrapper.now) > 1 && this._lastClick !== participant.userID)) {
 			return;
 		}
 		this._lastClick = -1;
@@ -202,11 +307,19 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 		return <IButtonData>{
 			controlID: this.getSceneID(scene),
 			kind: 'button',
-			text: this.text,
+			text: this._text,
+			tooltip: this._tooltip,
 			position: position,
 			cost: this._sparkCost,
 			cooldown: this._cooldown,
-			disabled: this._disabled
+			progress: this._progress,
+			disabled: this._disabled,
+
+			backgroundColor: this._backgroundColor,
+			textColor: this._textColor,
+			focusColor: this._focusColor,
+			accentColor: this._accentColor,
+			borderColor: this._borderColor,
 		};
 	}
 
@@ -237,6 +350,10 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 			updates.push({ attribute: "text", value: this._text });
 		}
 
+		if ((dirtyBits & ControlVariableFlags.Tooltip) === ControlVariableFlags.Tooltip) {
+			updates.push({ attribute: "tooltip", value: this._tooltip });
+		}
+
 		if ((dirtyBits & ControlVariableFlags.SparkCost) === ControlVariableFlags.SparkCost) {
 			updates.push({ attribute: "cost", value: this._sparkCost });
 		}
@@ -251,6 +368,26 @@ export class InteractiveButton extends InteractiveControl<IButton, IButtonData>{
 
 		if ((dirtyBits & ControlVariableFlags.Disabled) === ControlVariableFlags.Disabled) {
 			updates.push({ attribute: "disabled", value: this._disabled });
+		}
+
+		if ((dirtyBits & ControlVariableFlags.BackgroundColor) === ControlVariableFlags.BackgroundColor) {
+			updates.push({ attribute: "backgroundColor", value: this._backgroundColor });
+		}
+
+		if ((dirtyBits & ControlVariableFlags.TextColor) === ControlVariableFlags.TextColor) {
+			updates.push({ attribute: "textColor", value: this._textColor });
+		}
+
+		if ((dirtyBits & ControlVariableFlags.FocusColor) === ControlVariableFlags.FocusColor) {
+			updates.push({ attribute: "focusColor", value: this._focusColor });
+		}
+
+		if ((dirtyBits & ControlVariableFlags.AccentColor) === ControlVariableFlags.AccentColor) {
+			updates.push({ attribute: "accentColor", value: this._accentColor });
+		}
+
+		if ((dirtyBits & ControlVariableFlags.BorderColor) === ControlVariableFlags.BorderColor) {
+			updates.push({ attribute: "borderColor", value: this._borderColor });
 		}
 	}
 }

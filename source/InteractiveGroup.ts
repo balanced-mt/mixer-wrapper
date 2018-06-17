@@ -1,6 +1,6 @@
 import {
 	IGroup
-} from "../beam-interactive-node2";
+} from "beam-interactive-node2";
 
 import { Event } from "./common/utils/Event";
 
@@ -11,8 +11,8 @@ import { InteractiveUser } from "./InteractiveUser";
 export class InteractiveGroup {
 
 	public readonly wrapper: InteractiveWrapper;
-	private internal: IGroup;
-	public readonly id: string;
+	private internal?: IGroup;
+	public readonly id?: string;
 	public readonly temporary: boolean;
 	public readonly scene: InteractiveScene;
 	// protected readonly internal: ?;
@@ -21,7 +21,7 @@ export class InteractiveGroup {
 	public readonly onUserEnterEvent: Event<(user: InteractiveUser) => void> = new Event<any>();
 	public readonly onUserLeaveEvent: Event<(user: InteractiveUser) => void> = new Event<any>();
 
-	constructor(wrapper: InteractiveWrapper | undefined, scene: InteractiveScene, id?: string) {
+	constructor(wrapper: InteractiveWrapper, scene: InteractiveScene, id?: string) {
 		this.wrapper = wrapper;
 		this.id = id;
 		this.scene = scene;
@@ -35,10 +35,9 @@ export class InteractiveGroup {
 		this.userMap.clear();
 		if (this.isValid) {
 			this.internal = undefined;
-			if (this.temporary) {
-				this.onUserEnterEvent.clearCallbacks();
-				this.onUserLeaveEvent.clearCallbacks();
-			}
+			(this as any).id = undefined;
+			this.onUserEnterEvent.clearCallbacks();
+			this.onUserLeaveEvent.clearCallbacks();
 		}
 	}
 
@@ -83,7 +82,6 @@ export class InteractiveGroup {
 	}
 
 	beamGroupDestroy() {
-		// TODO delete groups
 		this.internal = undefined;
 	}
 }

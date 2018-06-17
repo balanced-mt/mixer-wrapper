@@ -7,4 +7,4 @@ export * from "./InteractiveWrapper";
 export * from "./CarinaWrapper";
 export * from "./ChatWrapper";
 export * from "./ClientWrapper";
-export * from "../beam-interactive-node2";
+export * from "beam-interactive-node2";

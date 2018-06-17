@@ -12,6 +12,7 @@ import {
 	CarinaWrapper
 } from "../index";
 
+
 const config = require("../../config/config.json");
 
 class TestButton extends InteractiveButton {
@@ -77,16 +78,11 @@ wrapper.defaultScene.addControl(new ChangeSceneButton(wrapper, "newSceneButton",
 wrapper.addScene(newScene);
 wrapper.addGroup(newGroup);
 
-newScene.addControl(testButton,
-	[
-		{ size: "large", width: 80, height: 4, x: 0, y: 0 },
-		{ size: "medium", width: 11, height: 4, x: 0, y: 0 },
-		{ size: "small", width: 7, height: 4, x: 0, y: 0 }
-	]
-);
-
 let testButton2 = new InteractiveButton(wrapper, "testButton2", "Test buttons2!");
 testButton2.sparkCost = 1;
+testButton2.progress = 0.5;
+testButton2.backgroundColor = "#220000";
+testButton2.tooltip = "This is a tooltip!";
 newScene.addControl(testButton2,
 	[
 		{ size: "large", width: 80, height: 4, x: 0, y: 4 },

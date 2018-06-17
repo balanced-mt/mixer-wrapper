@@ -1,11 +1,11 @@
-import { IScene, IControl, IControlData, IGridPlacement } from "../beam-interactive-node2";
+import { IScene, IControl, IControlData, IGridPlacement } from "beam-interactive-node2";
 import { InteractiveControl } from "./InteractiveControl";
 import { InteractiveWrapper } from "./InteractiveWrapper";
 export declare class InteractiveScene {
-    readonly wrapper: InteractiveWrapper | undefined;
-    private internal;
+    readonly wrapper: InteractiveWrapper;
+    private internal?;
     readonly type: string;
-    readonly id: string;
+    readonly id?: string;
     readonly temporary: boolean;
     private controlsData;
     private controlsMap;
@@ -16,6 +16,12 @@ export declare class InteractiveScene {
      * Removes all buttons and deletes the scene.
      */
     destroy(): Promise<void>;
+    /**
+     * @Internal
+     *
+     * Removes all buttons and deletes the scene.
+     */
+    destroyOnStop(): Promise<void>;
     /**
      * [Property][Readonly] Returns true is the scene is still valid.
      */

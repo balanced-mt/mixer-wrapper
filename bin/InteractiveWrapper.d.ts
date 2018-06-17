@@ -1,4 +1,4 @@
-import { GameClient, IParticipant } from "../beam-interactive-node2";
+import { GameClient, IParticipant } from "beam-interactive-node2";
 import { Event } from "./common/utils/Event";
 import { InteractiveScene } from "./InteractiveScene";
 import { InteractiveUser } from "./InteractiveUser";
@@ -12,10 +12,12 @@ export declare class InteractiveWrapper {
     private sessionMap;
     private userMap;
     private userIDMap;
-    onInit: Event<() => void>;
-    onReady: Event<() => void>;
-    onUserJoin: Event<(user: InteractiveUser) => void>;
-    onUserLeave: Event<(user: InteractiveUser) => void>;
+    readonly onInit: Event<() => void>;
+    readonly onReady: Event<() => void>;
+    readonly onUserJoin: Event<(user: InteractiveUser) => void>;
+    readonly onUserLeave: Event<(user: InteractiveUser) => void>;
+    readonly onStop: Event<() => void>;
+    private interval;
     authToken: string;
     versionID: number;
     sharecode: string | undefined;
@@ -39,7 +41,7 @@ export declare class InteractiveWrapper {
     /**********************************************************************/
     private scenesInitialized;
     private groupsInitialized;
-    beamInit(): Promise<void>;
+    private beamInit;
     private loggingEnabled;
     enableLogging(): void;
     disableLogging(): void;
@@ -48,9 +50,9 @@ export declare class InteractiveWrapper {
     start(): Promise<void>;
     stop(): void;
     update(): void;
-    private createScene(id);
-    private deleteScene(id, reassignSceneID);
-    private createGroup(id, sceneID);
-    private updateGroup(group, sceneID);
-    private deleteGroup(id, reassignGroupID);
+    private createScene;
+    private deleteScene;
+    private createGroup;
+    private updateGroup;
+    private deleteGroup;
 }

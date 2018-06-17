@@ -1,5 +1,4 @@
-import BeamClient = require("beam-client-node");
-import * as Chat from "beam-client-node/defs/chat";
+import { Client as MixerClient, IChatMessage, IDeleteMessage, IPurgeMessage, IUserUpdate, IUserConnection, IPollEvent, IUserTimeout } from "beam-client-node";
 import { Event } from "./common/utils/Event";
 export interface ChatClearMessages {
     clearer: {
@@ -9,12 +8,9 @@ export interface ChatClearMessages {
         user_level: number;
     };
 }
-export interface ChatMessage extends Chat.ChatMessage {
-    text: string;
-}
 export declare class ChatWrapper {
-    private client;
-    private socket;
+    private client?;
+    private socket?;
     private channelID;
     private client_id;
     private accessToken;
@@ -24,54 +20,56 @@ export declare class ChatWrapper {
     /**
      * Event called when new user joins the chat.
      */
-    onChatUserJoin: Event<(id: number, username: string, data: Chat.UserConnection) => void>;
+    onChatUserJoin: Event<(id: number, username: string, data: IUserConnection) => void>;
     /**
      * Event called when user leaves the chat.
      */
-    onChatUserLeave: Event<(id: number, username: string, data: Chat.UserConnection) => void>;
+    onChatUserLeave: Event<(id: number, username: string, data: IUserConnection) => void>;
     /**
      * Event called when chat is cleared.
      */
-    onChatClearMessages: Event<(data: ChatClearMessages) => void>;
+    onChatClearMessages: Event<() => void>;
     /**
      * Event called when message is deleted.
      */
-    onChatDeleteMessage: Event<(data: Chat.DeleteMessage) => void>;
+    onChatDeleteMessage: Event<(data: IDeleteMessage) => void>;
     /**
      * Event called when messages from a specific user are purged.
      *
      * Example: when user gets timed out or banned.
      */
-    onChatPurgeMessage: Event<(data: Chat.PurgeMessage) => void>;
+    onChatPurgeMessage: Event<(data: IPurgeMessage) => void>;
     /**
      * Event called when a user is timed out from chat
      */
-    onChatUserTimeout: Event<(data: Chat.UserTimeout) => void>;
+    onChatUserTimeout: Event<(data: IUserTimeout) => void>;
     /**
      * Event called when user is updated.
      */
-    onChatUserUpdate: Event<(data: Chat.UserUpdate) => void>;
+    onChatUserUpdate: Event<(data: IUserUpdate) => void>;
     /**
      * Event called when bot receives a new message.
      */
-    onChatMessage: Event<(data: ChatMessage) => void>;
+    onChatMessage: Event<(data: IChatMessage & {
+        text: string;
+    }) => void>;
     /**
      * Called when a chat poll is started
      */
-    onPollStart: Event<(data: Chat.PollEvent) => void>;
+    onPollStart: Event<(data: IPollEvent) => void>;
     /**
      * Called when a chat poll ends
      */
-    onPollEnd: Event<(data: Chat.PollEvent) => void>;
+    onPollEnd: Event<(data: IPollEvent) => void>;
     /**
      * Event called the ChatWrapper is ready.
      */
-    onBotReady: Event<(client: BeamClient) => void>;
+    onBotReady: Event<(client: MixerClient) => void>;
     constructor(channelID: number, client_id: string, accessToken: string, tokenExpires: number);
     /**
      * Add an outgoing command to the command-queue
      */
-    private addToQueue(f, pushFront?);
+    private addToQueue;
     /**
      * Send a global chat message
      */
