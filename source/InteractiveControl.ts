@@ -175,8 +175,6 @@ export abstract class InteractiveControl<T extends IControl, K extends IControlD
 
 		if (this.activeControls.size <= 0) {
 			this.dirtyFlags = 0;
-		} else if (this.activeControls.size > 1) {
-			throw new Error("NYI");
 		} else if (!this.updateLock && this.dirtyFlags !== 0 && (this.lastUpdate === undefined || this.lastUpdate + 50 < time)) {
 			let dirtyBits = this.dirtyFlags;
 			this.dirtyFlags = 0;

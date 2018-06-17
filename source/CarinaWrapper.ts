@@ -95,11 +95,11 @@ export class CarinaWrapper {
 		}).open();
 
 		this.ca.on("error", (err: any) => {
-			console.log("[Carina] error: " + err);
+			console.log("[Carina] error: ", err);
 		});
 
 		this.ca.on("warning", (err: any) => {
-			console.log("[Carina] warning: " + err);
+			console.log("[Carina] warning: ", err);
 		});
 
 		this.ca.subscribe<CarinaInterface.ChannelFollowed>(`channel:${channelID}:followed`, data => {
